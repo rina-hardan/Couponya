@@ -1,8 +1,10 @@
 import mysql from 'mysql2';
 import dotenv from 'dotenv';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config({ path: './DB/.env' });
-
+dotenv.config({ path: '../.env' });
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -11,18 +13,26 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  multipleStatements: true, // חשוב להרצת כמה פקודות SQL בקובץ
 });
 
-const db = pool.promise();
-
+const DB = pool.promise();
 (async () => {
   try {
-    await db.query('SELECT 1');
+    await DB.query('SELECT 1');
     console.log('✅ Connected to the database successfully.');
+  
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    const sql = await fs.readFile(path.join(__dirname, 'SQLFile.sql'), 'utf8');
+    await DB.query(sql);
+    console.log('✅ SQLFile.sql executed successfully.');
+
   } catch (error) {
-    console.error('❌ Failed to connect to the database:', error.message);
+    console.error(' Failed:', error.message);
   }
 })();
 
-export default db;
+export default DB;
