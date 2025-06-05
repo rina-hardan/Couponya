@@ -7,11 +7,15 @@ CREATE TABLE IF NOT EXISTS users (
   userName VARCHAR(50) NOT NULL UNIQUE,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
   role ENUM('admin', 'user', 'business_owner') DEFAULT 'user',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS passwords (
+  user_id INT PRIMARY KEY,
+  password VARCHAR(255) NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
 -- טבלת לקוחות
 CREATE TABLE IF NOT EXISTS customers (
   customer_id INT PRIMARY KEY,
