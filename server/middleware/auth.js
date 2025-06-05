@@ -1,7 +1,5 @@
-import jwt from 'jsonwebtoken';
-
-const secretKey = process.env.SECRETKEY || 'SECRETKEY';
-
+import   jwt from 'jsonwebtoken';
+const secretKey = process.env.SECRETKEY||'SECRETKEY';
 export function verifyToken(req, res, next) {
     const token = req.header('Authorization');
      console.log(token);
@@ -19,9 +17,17 @@ export function verifyToken(req, res, next) {
     }
 };
 
-export function generateToken(userId,role) {
-    const token = jwt.sign({userId,role}, secretKey, {
-        expiresIn: '1h'
-    });
-    return token;
+export function generateToken(userId) {
+const token = jwt.sign({ userId,role }, secretKey, {
+ expiresIn: '1h'
+ });
+ return token;
+ }
+ 
+export function isAdmin(req, res, next) {  
+     console.log("req.role:", req.role);
+    if (req.role != 'admin') { 
+        return res.status(403).json({ error: 'Access denied' });
+    }
+    next();
 }

@@ -37,7 +37,31 @@ const usersModel = {
     } catch (err) {
       throw err;
     }
+  },
+  registerBusinessOwner: async ({ userId, business_name, description, website_url, logo_url }) => {
+  try {
+    const [result] = await DB.query(
+      "INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url) VALUES (?, ?, ?, ?, ?)",
+      [userId, business_name, description, website_url, logo_url]
+    );
+    return { success: true };
+  } catch (err) {
+    console.error("Error in registerBusinessOwner:", err);
+    return { success: false, error: err };
   }
+},
+  registerCustomer: async ({ userId, birth_date }) => {
+  try {
+    const [result] = await DB.query(
+      "INSERT INTO customers (customer_id, birth_date) VALUES (?, ?)",
+      [userId, birth_date]
+    );
+    return { success: true, points: result.points };
+  } catch (err) {
+    console.error("Error in registerCustomer:", err);
+    return { success: false, error: err };
+  }
+}
 };
 
 export default usersModel;

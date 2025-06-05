@@ -15,12 +15,12 @@ console.log('DB_NAME:', process.env.DB_NAME);
 const pool = mysql.createPool({
   host: process.env.DB_HOST ||"localhost" ,
   user: process.env.DB_USER ||"root",
-  password: process.env.DB_PASSWORD|| "123456",
+  password: process.env.DB_PASSWORD|| "MiriamShira2004!",
   database: process.env.DB_NAME||"couponya_db",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  multipleStatements: true, // חשוב להרצת כמה פקודות SQL בקובץ
+  multipleStatements: true, 
 });
 
 const DB = pool.promise();
