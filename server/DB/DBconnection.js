@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 
 dotenv.config({ path: '../.env' });
 
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
