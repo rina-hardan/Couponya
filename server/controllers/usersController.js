@@ -5,43 +5,73 @@ import jwt from "jsonwebtoken";
 const secretKey = process.env.JWT_SECRET || "your_secret_key_here"; // עדכן לפי הקובץ שלך
 
 const usersController = {
-  register: async (req, res) => {
-    try {
-      const { userName, name, email, password, role } = req.body;
+ register: async (req, res) => {
+  try {
+    const { userName, name, email, password, role } = req.body;
 
-      if (!name || !userName || !email || !password || !role) {
-        return res.status(400).json({ error: "All fields are required" });
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: "Invalid email address" });
-      }
-
-      if (password.length < 6) {
-        return res.status(400).json({ error: "Password must be at least 6 characters long" });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newUser = {
-        userName,
-        name,
-        email,
-        role,
-        created_at: new Date(),
-        password: hashedPassword
-      };
-
-      const result = await usersModel.register(newUser);
-
-      res.status(201).json({ message: "User added successfully", userId: result.userId });
-
-    } catch (err) {
-      console.error("Error in register:", err);
-      res.status(500).json({ error: "Internal server error" });
+    if (!name || !userName || !email || !password || !role) {
+      return res.status(400).json({ error: "All fields are required" });
     }
-  },
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email address" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters long" });
+    }
+
+    let extraData = {};
+    if (role === "customer") {
+      const { birth_date } = req.body;
+      if (!birth_date) {
+        return res.status(400).json({ error: "Birth date is required for customers" });
+      }
+      extraData = { birth_date };
+    } else if (role === "business_owner") {
+      const { business_name, description, website_url, logo_url } = req.body;
+      if (!business_name) {
+        return res.status(400).json({ error: "Business name is required for business owners" });
+      }
+      extraData = { business_name, description, website_url, logo_url };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = {
+      userName,
+      name,
+      email,
+      role,
+      created_at: new Date(),
+      password: hashedPassword
+    };
+
+    const result = await usersModel.register(newUser);
+    const userId = result.userId;
+    const returnedData={};
+    if (role === "customer") {
+       returnedData = await usersModel.registerCustomer({ userId, ...extraData });
+      if (!returnedData.success) {
+        return res.status(500).json({ error: "Failed to register customer details" });
+      }
+    } else if (role === "business_owner") {
+       returnedData = await usersModel.registerBusinessOwner({ userId, ...extraData });
+      if (!returnedData.success) {
+        return res.status(500).json({ error: "Failed to register business owner details" });
+      }
+    }
+      const { success, ...cleanData } = returnedData;
+
+    res.status(201).json({ message: "User added successfully", userId, ...cleanData });
+
+  } catch (err) {
+    console.error("Error in register:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+,
 
   login: async (req, res) => {
     try {
