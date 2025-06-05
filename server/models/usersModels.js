@@ -10,13 +10,13 @@ const usersModel = {
       );
 
       const userId = result.insertId;
-      
+
       await DB.query(
-        "INSERT INTO passwords (user_id, password_hash) VALUES (?, ?)",
+        "INSERT INTO passwords (user_id, password) VALUES (?, ?)",
         [userId, password]
       );
 
-      return { userId };
+      return  userId ;
     } catch (err) {
       throw err;
     }
