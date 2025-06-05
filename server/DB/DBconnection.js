@@ -6,6 +6,11 @@ import { fileURLToPath } from 'url';
 
 dotenv.config({ path: '../.env' });
 
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '***' : 'No password!');
+console.log('DB_NAME:', process.env.DB_NAME);
+
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
@@ -23,7 +28,7 @@ const DB = pool.promise();
   try {
     await DB.query('SELECT 1');
     console.log('✅ Connected to the database successfully.');
-  
+
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
 
