@@ -24,7 +24,7 @@ const usersModel = {
 
   getUserByEmail: async (email) => {
     const query = `
-      SELECT users.*, passwords.password_hash AS password
+      SELECT users.*, passwords.password AS password
       FROM users
       JOIN passwords ON users.id = passwords.user_id
       WHERE users.email = ?

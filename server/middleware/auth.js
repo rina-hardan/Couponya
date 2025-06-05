@@ -4,7 +4,7 @@ const secretKey = process.env.SECRETKEY || 'SECRETKEY';
 
 export function verifyToken(req, res, next) {
     const token = req.header('Authorization');
-
+     console.log(token);
     if (!token) return res.status(401).json({ error: 'Access denied' });
 
     try {
