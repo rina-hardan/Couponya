@@ -15,7 +15,7 @@ const usersController = {
             return res.status(400).json({ error: "Invalid email address" });
         }
     
-        if (password.length < 5) {
+        if (password.length < 6) {
             return res.status(400).json({ error: "Password must be at least 6 characters long" });
         }
     
@@ -24,7 +24,7 @@ const usersController = {
                 console.error("Error hashing the password:", err);
                 return res.status(500).json({ error: "Error hashing the password" });
             }
-    
+   
             const userToSave = {
                 name,
                 username,
