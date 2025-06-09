@@ -1,24 +1,27 @@
 import express from 'express';
 import couponsController from '../controllers/couponController.js';
 const couponsRouter = express.Router();
-// יצירת קופון חדש (על ידי בעל עסק)
+
+//Add Coupon
 couponsRouter.post('/create', couponsController.createCoupon);
 
-// קבלת כל הקופונים (למשתמשים לצפייה)
-couponsRouter.get('/', couponsController.getAllCoupons);
+//GetAllActiveCoupons
+couponsRouter.get('/', couponsController.getAllActiveCoupons);
 
-// קבלת פרטי קופון ספציפי לפי id
+//GetCouponOfBussinesOwner by BusinessOwnerId
+couponsRouter.get('/BusinessOwnerCoupon/:businessOwnerId', couponsController.getCouponsByBusinessOwnerId);
+
+//getCouponById
 couponsRouter.get('/:id', couponsController.getCouponById);
 
-couponsRouter.get('/myCoupons/:id', couponsController.getCouponByOwnerBusinessId);
-
-// עדכון קופון (רק בעל העסק שיצר אותו)
+//updateCoupon
 couponsRouter.put('/:id', couponsController.updateCoupon);
 
-// מחיקת קופון (רק בעל העסק שיצר אותו)
 couponsRouter.delete('/:id', couponsController.deleteCoupon);
 
-// צפייה בכמות הקופונים שנקנו עבור קופון מסוים (לבעל העסק)
-couponsRouter.get('/:id/purchases', couponsController.getCouponPurchasesCount);
+//
+couponsRouter.get('/:id/purchases', couponsController.getPurchasesCount);
+
+
 
 export default couponsRouter;

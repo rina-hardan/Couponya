@@ -3,14 +3,15 @@ import dotenv from 'dotenv';
 
 import usersRouter from "../server/routers/usersRoute.js"
 import couponsRouter from "../server/routers/couponRoute.js"
-
+import orderRouter from "../server/routers/orderRoute.js"
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
-dotenv.config({ path: '../.env' });
 
 app.use(express.json()); 
 app.use("/users",usersRouter); 
 app.use("/coupons",couponsRouter); 
+app.use("/order",orderRouter); 
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });

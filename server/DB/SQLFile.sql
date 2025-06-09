@@ -103,35 +103,3 @@ INSERT INTO categories (name) VALUES
 
 select * from categories;
 select * from regions;
-SET @last_user_id = LAST_INSERT_ID();
-INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url)
-VALUES ("14", 'Rina\'s Cafe', 'Cafe with a cozy atmosphere', 'https://rinascafe.com', 'https://rinascafe.com/logo.png');
-INSERT INTO coupons (
-  business_owner_id,
-  category_id,
-  region_id,
-  title,
-  description,
-  original_price,
-  discounted_price,
-  address,
-  code,
-  quantity,
-  expiry_date,
-  is_active,
-  status
-) VALUES (
-  1,                        -- business_owner_id: קיים בבעל העסק עם ID 1
-  2,                        -- category_id: קיים בקטגוריה עם ID 2 (למשל 'Restaurants and Food')
-  3,                        -- region_id: קיים באזור עם ID 3 (למשל 'Center')
-  '50% הנחה על ארוחת ערב',
-  'קופון מיוחד לארוחת ערב זוגית במסעדה',
-  200.00,                   -- מחיר מקורי
-  100.00,                   -- מחיר אחרי הנחה
-  'רחוב החשמל 10, תל אביב',
-  'DINNER50',               -- קוד קופון ייחודי
-  100,                      -- כמות זמינה
-  '2025-12-31',             -- תאריך תפוגה
-  TRUE,                     -- האם הקופון פעיל
-  'pending'                 -- סטטוס: ממתין לאישור מנהל
-);

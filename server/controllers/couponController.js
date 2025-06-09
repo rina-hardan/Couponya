@@ -1,4 +1,4 @@
-import couponsModel from '../models/couponModels.js';
+import couponsModel from "../models/couponModels.js";
 
 const couponsController = {
   createCoupon: async (req, res) => {
@@ -7,65 +7,78 @@ const couponsController = {
       const newCoupon = await couponsModel.create(couponData);
       res.status(201).json(newCoupon);
     } catch (error) {
-      res.status(500).json({ message: 'Error creating coupon', error });
+      res.status(500).json({ message: "Error creating coupon", error: error.message });
     }
   },
 
-  getCouponByOwnerBusinessId: async (req, res) => {
-    try {
-      const businessOwnerId = req.params.id;
-      const coupons = await couponsModel.getCouponsByBusinessOwnerId(businessOwnerId);
-      res.json(coupons);
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching coupons for business owner', error });
-    }
-  },
-
-  getAllCoupons: async (req, res) => {
+  getAllActiveCoupons: async (req, res) => {
     try {
       const coupons = await couponsModel.getAllActive();
-      res.json(coupons);
+      res.status(200).json(coupons);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching coupons', error });
+      res.status(500).json({ message: "Error retrieving active coupons", error: error.message });
     }
   },
 
   getCouponById: async (req, res) => {
     try {
-      const coupon = await couponsModel.getById(req.params.id);
-      if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
-      res.json(coupon);
+      const { id } = req.params;
+      const coupon = await couponsModel.getById(id);
+      if (coupon) {
+        res.status(200).json(coupon);
+      } else {
+        res.status(404).json({ message: "Coupon not found" });
+      }
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching coupon', error });
+      res.status(500).json({ message: "Error retrieving coupon", error: error.message });
     }
   },
 
   updateCoupon: async (req, res) => {
     try {
-      const updated = await couponsModel.update(req.params.id, req.body);
-      if (!updated) return res.status(404).json({ message: 'Coupon not found or not authorized' });
-      res.json({ message: 'Coupon updated successfully' });
+      const { id } = req.params;
+      const updated = await couponsModel.update(id, req.body);
+      if (updated) {
+        res.status(200).json({ message: "Coupon updated successfully" });
+      } else {
+        res.status(404).json({ message: "Coupon not found" });
+      }
     } catch (error) {
-      res.status(500).json({ message: 'Error updating coupon', error });
+      res.status(500).json({ message: "Error updating coupon", error: error.message });
     }
   },
 
   deleteCoupon: async (req, res) => {
     try {
-      const deleted = await couponsModel.delete(req.params.id);
-      if (!deleted) return res.status(404).json({ message: 'Coupon not found or not authorized' });
-      res.json({ message: 'Coupon deleted successfully' });
+      const { id } = req.params;
+      const deleted = await couponsModel.delete(id);
+      if (deleted) {
+        res.status(200).json({ message: "Coupon deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Coupon not found" });
+      }
     } catch (error) {
-      res.status(500).json({ message: 'Error deleting coupon', error });
+      res.status(500).json({ message: "Error deleting coupon", error: error.message });
     }
   },
 
-  getCouponPurchasesCount: async (req, res) => {
+  getPurchasesCount: async (req, res) => {
     try {
-      const count = await couponsModel.getPurchasesCount(req.params.id);
-      res.json({ couponId: req.params.id, purchasedCount: count });
+      const { couponId } = req.params;
+      const count = await couponsModel.getPurchasesCount(couponId);
+      res.status(200).json({ couponId, purchasedCount: count });
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching purchases count', error });
+      res.status(500).json({ message: "Error retrieving purchases count", error: error.message });
+    }
+  },
+
+  getCouponsByBusinessOwnerId: async (req, res) => {
+    try {
+      const { businessOwnerId } = req.params;
+      const coupons = await couponsModel.getCouponsByBusinessOwnerId(businessOwnerId);
+      res.status(200).json(coupons);
+    } catch (error) {
+      res.status(500).json({ message: "Error retrieving coupons for business owner", error: error.message });
     }
   }
 };
