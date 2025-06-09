@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS coupons (
   quantity INT,
   expiry_date DATE,
   is_active BOOLEAN,
+  status ENUM('pending','confirmed') DEFAULT 'pending',
   FOREIGN KEY (business_owner_id) REFERENCES business_owners(business_owner_id) ON DELETE CASCADE,
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
   FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE SET NULL
@@ -87,3 +88,19 @@ CREATE TABLE IF NOT EXISTS order_items (
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
   FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE
 );
+INSERT INTO regions (name) VALUES
+('North'),
+('South'),
+('Center'),
+('Jerusalem'),
+('Haifa'),
+('Sharon');
+
+INSERT INTO categories (name) VALUES
+('Culture and Leisure'),
+('Shopping'),
+('Restaurants and Food'),
+('Vacations and Leisure');
+
+select * from categories;
+select * from regions;
