@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS passwords (
 CREATE TABLE IF NOT EXISTS customers (
   customer_id INT PRIMARY KEY,
   birth_date DATE,
+  address VARCHAR(255),
   points INT DEFAULT 0,
   FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -57,7 +58,7 @@ CREATE TABLE IF NOT EXISTS coupons (
   original_price DECIMAL(10,2),
   discounted_price DECIMAL(10,2),
   address VARCHAR(100),
-  code VARCHAR(100) NOT NULL,
+  code VARCHAR(100) NOT NULL UNIQUE,
   quantity INT,
   expiry_date DATE,
   is_active BOOLEAN,

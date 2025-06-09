@@ -6,6 +6,6 @@ const usersRouter = express.Router();
 
 usersRouter.post("/register", usersController.register);
 usersRouter.post("/login", usersController.login);
-
+usersRouter.put("/update", verifyToken, usersController.update);
 export default usersRouter;
 

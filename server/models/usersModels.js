@@ -50,18 +50,132 @@ const usersModel = {
     return { success: false, error: err };
   }
 },
-  registerCustomer: async ({ userId, birth_date }) => {
+  registerCustomer: async ({ userId, birth_date,address }) => {
   try {
     const [result] = await DB.query(
-      "INSERT INTO customers (customer_id, birth_date) VALUES (?, ?)",
-      [userId, birth_date]
+      "INSERT INTO customers (customer_id, birth_date,address) VALUES (?, ?,?)",
+      [userId, birth_date, address]
     );
     return { success: true, points: result.points };
   } catch (err) {
     console.error("Error in registerCustomer:", err);
     return { success: false, error: err };
   }
+},
+// updateUser: async (userId, userData) => {
+//   const { name, userName, email, role } = userData;
+
+//   const conn = await DB.getConnection(); 
+
+//   try {
+//     await conn.beginTransaction();
+
+//     await conn.query(
+//       "UPDATE users SET name = ?, userName = ?, email = ?, role = ? WHERE id = ?",
+//       [name, userName, email, role, userId]
+//     );
+
+//     if (role === "customer") {
+//       const { birth_date, address } = userData;
+//       await conn.query(
+//         "UPDATE customers SET birth_date = ?, address = ? WHERE customer_id = ?",
+//         [birth_date, address, userId]
+//       );
+//     } else if (role === "business_owner") {
+//       const { business_name, description, website_url, logo_url } = userData;
+//       await conn.query(
+//         "UPDATE business_owners SET business_name = ?, description = ?, website_url = ?, logo_url = ? WHERE business_owner_id = ?",
+//         [business_name, description, website_url, logo_url, userId]
+//       );
+//     }
+
+//     await conn.commit();
+//     conn.release();
+//     return { success: true };
+
+//   } catch (err) {
+//     await conn.rollback();
+//     conn.release();
+//     console.error("Error in updateUser:", err);
+//     return { success: false, error: err };
+//   }
+// }
+updateUser: async (userId, data, userType) => {
+  const conn = await DB.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    const userFields = ['name'];
+    const setUser = [];
+    const userValues = [];
+
+    for (const key of userFields) {
+      if (data[key] !== undefined) {
+        setUser.push(`${key} = ?`);
+        userValues.push(data[key]);
+      }
+    }
+
+    if (setUser.length > 0) {
+      const userSql = `
+        UPDATE users SET ${setUser.join(', ')}
+        WHERE id = ?
+      `;
+      userValues.push(userId);
+      await conn.query(userSql, userValues);
+    }
+
+    let tableName;
+    let idColumn;
+    let profileFields = [];
+
+    if (userType === 'customer') {
+      tableName = 'customers';
+      idColumn = 'customer_id';
+      profileFields = ['birth_date', 'address'];
+    } else if (userType === 'businessOwner') {
+      tableName = 'business_owners';
+      idColumn = 'business_owner_id';
+      profileFields = ['business_name', 'description', 'website_url', 'logo_url'];
+    } else {
+      throw new Error("Invalid user type");
+    }
+
+    const setProfile = [];
+    const profileValues = [];
+
+    for (const key of profileFields) {
+      if (data[key] !== undefined) {
+        setProfile.push(`${key} = ?`);
+        profileValues.push(data[key]);
+      }
+    }
+
+    if (setProfile.length > 0) {
+      const profileSql = `
+        UPDATE ${tableName}
+        SET ${setProfile.join(', ')}
+        WHERE ${idColumn} = ?
+      `;
+      profileValues.push(userId);
+      await conn.query(profileSql, profileValues);
+    }
+
+    await conn.commit();
+    return { success: true };
+
+  } catch (err) {
+    await conn.rollback();
+    console.error("Error in updateUser:", err);
+    return { success: false, error: err.message };
+  } finally {
+    conn.release();
+  }
 }
+
+
+ 
 };
 
 export default usersModel;

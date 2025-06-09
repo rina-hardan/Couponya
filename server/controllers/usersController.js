@@ -2,7 +2,7 @@ import usersModel from "../models/usersModels.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const secretKey = process.env.JWT_SECRET || "your_secret_key_here"; // עדכן לפי הקובץ שלך
+const secretKey = process.env.SECRETKEY || 'SECRETKEY'; 
 
 const usersController = {
  register: async (req, res) => {
@@ -24,9 +24,12 @@ const usersController = {
 
     let extraData = {};
     if (role === "customer") {
-      const { birth_date } = req.body;
-      if (!birth_date) {
-        return res.status(400).json({ error: "Birth date is required for customers" });
+      const { birth_date,address } = req.body;
+      if (!birth_date|| !address) {
+        return res.status(400).json({ error: "Birth date  is required for customers" });
+      }
+       if ( !address) {
+        return res.status(400).json({ error: "address is required for customers" });
       }
       extraData = { birth_date };
     } else if (role === "business_owner") {
@@ -48,9 +51,9 @@ const usersController = {
       password: hashedPassword
     };
 
-    const result = await usersModel.register(newUser);
-    const userId = result.userId;
-    const returnedData={};
+    const userId = await usersModel.register(newUser);
+
+    let returnedData={};
     if (role === "customer") {
        returnedData = await usersModel.registerCustomer({ userId, ...extraData });
       if (!returnedData.success) {
@@ -63,8 +66,8 @@ const usersController = {
       }
     }
       const { success, ...cleanData } = returnedData;
-
-    res.status(201).json({ message: "User added successfully", userId, ...cleanData });
+     const token = jwt.sign({ userId: userId, role: role }, secretKey, { expiresIn: '1h' });
+    res.status(201).json({ message: "User added successfully", userId, ...cleanData ,token});
 
   } catch (err) {
     console.error("Error in register:", err);
@@ -107,6 +110,38 @@ const usersController = {
       res.status(500).json({ error: "Internal server error" });
     }
   }
+  ,
+
+  update: async (req, res) => {
+  const userId = req.userId;
+  const userType = req.role; 
+  const incomingData = req.body;
+
+  const forbiddenFields = ['email', 'userName', 'role', 'id'];
+
+  const filteredData = {};
+  for (const [key, value] of Object.entries(incomingData)) {
+    if (!forbiddenFields.includes(key)) {
+      filteredData[key] = value;
+    }
+  }
+
+  try {
+    const result = await userModel.updateUser(userId, filteredData, userType);
+    if (result.success) {
+      res.status(200).json({ message: "User updated successfully." });
+    } else {
+      res.status(400).json({ error: result.error || "Failed to update user." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+}
+
+ 
+
+
+
 };
 
 export default usersController;
