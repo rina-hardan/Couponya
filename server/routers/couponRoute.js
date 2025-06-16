@@ -1,9 +1,10 @@
 import express from 'express';
 import couponsController from '../controllers/couponController.js';
+import { verifyToken } from '../middleware/auth.js';
 const couponsRouter = express.Router();
 
 //Add Coupon
-couponsRouter.post('/create', couponsController.createCoupon);
+couponsRouter.post('/create',verifyToken, couponsController.createCoupon);
 
 //GetAllActiveCoupons
 couponsRouter.get('/', couponsController.getAllActiveCoupons);
@@ -15,12 +16,12 @@ couponsRouter.get('/BusinessOwnerCoupon/:businessOwnerId', couponsController.get
 couponsRouter.get('/:id', couponsController.getCouponById);
 
 //updateCoupon
-couponsRouter.put('/:id', couponsController.updateCoupon);
+couponsRouter.put('/:id',verifyToken, couponsController.updateCoupon);
 
-couponsRouter.delete('/:id', couponsController.deleteCoupon);
+couponsRouter.delete('/:id',verifyToken, couponsController.deleteCoupon);
 
 //
-couponsRouter.get('/:id/purchases', couponsController.getPurchasesCount);
+couponsRouter.post('/:id/purchases',verifyToken, couponsController.getPurchasesCount);
 
 
 

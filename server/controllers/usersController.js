@@ -66,7 +66,7 @@ const usersController = {
       }
     }
       const { success, ...cleanData } = returnedData;
-     const token = jwt.sign({ userId: userId, role: role }, secretKey, { expiresIn: '1h' });
+     const token = jwt.sign({ userId: userId, role: role ,email:email}, secretKey, { expiresIn: '1h' });
     res.status(201).json({ message: "User added successfully", userId, ...cleanData ,token});
 
   } catch (err) {
@@ -97,7 +97,7 @@ const usersController = {
       const registeredUser = { ...user };
       delete registeredUser.password;
 
-      const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign({ userId: user.id, role: user.role ,email:user.email}, secretKey, { expiresIn: '1h' });
 
       res.json({
         message: "Login successful",

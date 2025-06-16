@@ -9,6 +9,8 @@ export function verifyToken(req, res, next) {
         const decoded = jwt.verify(token, secretKey);
         req.userId = decoded.userId;
         req.role = decoded.role;
+        req.email = decoded.email;
+        console.log("decoded.email:", decoded.email);
         console.log("decoded.role:", decoded.role);
         next();
 
@@ -17,8 +19,8 @@ export function verifyToken(req, res, next) {
     }
 };
 
-export function generateToken(userId) {
-const token = jwt.sign({ userId,role }, secretKey, {
+export function generateToken(userId, role, email) {
+const token = jwt.sign({ userId,role ,email}, secretKey, {
  expiresIn: '1h'
  });
  return token;
