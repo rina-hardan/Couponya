@@ -1,56 +1,75 @@
 import ordersModel from "../models/orderModels.js";
 import couponsModel from "../models/couponModels.js";
+import sendMail from "../utils/mailer.js";
+import DB from "../DB/DBconnection.js";
+
 const ordersController = {
-  createOrder: async (req, res) => {
-    try {
-      const { customerId, items, usePoints } = req.body;
+ createOrder: async (req, res) => {
+  const connection = await DB.getConnection();
+  try {
+    await connection.beginTransaction();
 
-      if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({ error: "Missing required data" });
-      }
+    const { customerId, items, usePoints } = req.body;
 
-      let totalPrice = items.reduce((sum, item) => sum + item.pricePerUnit * item.quantity, 0);
-
-      const currentPoints = await ordersModel.getCustomerPoints(customerId);
-      let pointsUsed = 0;
-      if (usePoints) {
-        pointsUsed = Math.min(currentPoints, totalPrice);
-        totalPrice -= pointsUsed;
-      }
-
-      const pointsEarned = Math.floor(totalPrice * 0.05);
-      const updatedPoints = currentPoints - pointsUsed + pointsEarned;
-
-      const orderDate = new Date();
-      const orderId = await ordersModel.createOrder(customerId, totalPrice, orderDate);
-
-      const orderItems = items.map(item => [
-        orderId,
-        item.couponId,
-        item.quantity,
-        item.pricePerUnit,
-        item.pricePerUnit * item.quantity
-      ]);
-      
-      await ordersModel.bulkAddOrderItems(orderItems);
-
-      await ordersModel.updateCustomerPoints(customerId, updatedPoints);
-
-
-      res.status(201).json({
-        message: "Order created successfully",
-        orderId,
-        totalPrice,
-        pointsUsed,
-        pointsEarned,
-        updatedPoints
-      });
-
-    } catch (error) {
-      console.error("Error creating order:", error);
-      res.status(500).json({ error: "Internal server error" });
+    if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "Missing required data" });
     }
-  },
+
+    let totalPrice = items.reduce((sum, item) => sum + item.pricePerUnit * item.quantity, 0);
+
+    const currentPoints = await ordersModel.getCustomerPoints(customerId, connection);
+    let pointsUsed = 0;
+    if (usePoints) {
+      pointsUsed = Math.min(currentPoints, totalPrice);
+      totalPrice -= pointsUsed;
+    }
+
+    const pointsEarned = Math.floor(totalPrice * 0.05);
+    const updatedPoints = currentPoints - pointsUsed + pointsEarned;
+
+    const orderDate = new Date();
+    const orderId = await ordersModel.createOrder(customerId, totalPrice, orderDate, connection);
+
+    const orderItems = items.map(item => [
+      orderId,
+      item.couponId,
+      item.quantity,
+      item.pricePerUnit,
+      item.pricePerUnit * item.quantity
+    ]);
+
+    await ordersModel.bulkAddOrderItems(orderItems, connection);
+    await ordersModel.updateCustomerPoints(customerId, updatedPoints, connection);
+
+    // 🟡 שלב חדש: שליפת הקופונים לפי couponId
+    const couponIds = items.map(item => item.couponId);
+    const coupons = await couponsModel.getCouponsByIds(couponIds, connection); // תחזירי רק id ו-code
+      const couponCodes = coupons.map(c => c.code).join(", ");
+      
+    const emailText = `תודה על ההזמנה! הקופונים שלך הם:\n${couponCodes}`;
+
+    await sendMail("rina616235@gmail.com", "הקופונים שלך", emailText);
+
+    await connection.commit();
+
+    res.status(201).json({
+      message: "Order created and email sent successfully",
+      orderId,
+      totalPrice,
+      pointsUsed,
+      pointsEarned,
+      updatedPoints
+    });
+
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error creating order:", error);
+    res.status(500).json({ error: "Internal server error" });
+  } finally {
+    connection.release();
+  }
+}
+,
   getOrdersByCustomer: async (req, res) => {
   try {
     const customerId = req.params.customerId;
