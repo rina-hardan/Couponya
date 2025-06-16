@@ -1,5 +1,5 @@
 import ordersModel from "../models/orderModels.js";
-
+import couponsModel from "../models/couponModels.js";
 const ordersController = {
   createOrder: async (req, res) => {
     try {
@@ -8,10 +8,10 @@ const ordersController = {
       if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "Missing required data" });
       }
+
       let totalPrice = items.reduce((sum, item) => sum + item.pricePerUnit * item.quantity, 0);
 
       const currentPoints = await ordersModel.getCustomerPoints(customerId);
-
       let pointsUsed = 0;
       if (usePoints) {
         pointsUsed = Math.min(currentPoints, totalPrice);
@@ -24,25 +24,49 @@ const ordersController = {
       const orderDate = new Date();
       const orderId = await ordersModel.createOrder(customerId, totalPrice, orderDate);
 
-      for (const item of items) {
-        const itemTotal = item.pricePerUnit * item.quantity;
-        await ordersModel.addOrderItem(orderId, item.couponId, item.quantity, item.pricePerUnit, itemTotal);
-      }
+      const orderItems = items.map(item => [
+        orderId,
+        item.couponId,
+        item.quantity,
+        item.pricePerUnit,
+        item.pricePerUnit * item.quantity
+      ]);
+      
+      await ordersModel.bulkAddOrderItems(orderItems);
 
       await ordersModel.updateCustomerPoints(customerId, updatedPoints);
+
 
       res.status(201).json({
         message: "Order created successfully",
         orderId,
+        totalPrice,
         pointsUsed,
         pointsEarned,
         updatedPoints
       });
+
     } catch (error) {
       console.error("Error creating order:", error);
       res.status(500).json({ error: "Internal server error" });
     }
+  },
+  getOrdersByCustomer: async (req, res) => {
+  try {
+    const customerId = req.params.customerId;
+    if (!customerId) {
+      return res.status(400).json({ error: "Missing customer ID" });
+    }
+
+    const orders = await ordersModel.getOrdersByCustomerId(customerId);
+
+    res.json({ orders });
+  } catch (error) {
+    console.error("Error getting orders:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+}
+
 };
 
 export default ordersController;
