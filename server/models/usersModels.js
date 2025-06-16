@@ -100,82 +100,80 @@ const usersModel = {
 //     return { success: false, error: err };
 //   }
 // }
-updateUser: async (userId, data, userType) => {
-  const conn = await DB.getConnection();
+// updateUser: async (userId, data, userType) => {
+//   const conn = await DB.getConnection();
 
-  try {
-    await conn.beginTransaction();
+//   try {
+//     await conn.beginTransaction();
 
-    const userFields = ['name'];
-    const setUser = [];
-    const userValues = [];
+//     const userFields = ['name'];
+//     const setUser = [];
+//     const userValues = [];
 
-    for (const key of userFields) {
-      if (data[key] !== undefined) {
-        setUser.push(`${key} = ?`);
-        userValues.push(data[key]);
-      }
-    }
+//     for (const key of userFields) {
+//       if (data[key] !== undefined) {
+//         setUser.push(`${key} = ?`);
+//         userValues.push(data[key]);
+//       }
+//     }
 
-    if (setUser.length > 0) {
-      const userSql = `
-        UPDATE users SET ${setUser.join(', ')}
-        WHERE id = ?
-      `;
-      userValues.push(userId);
-      await conn.query(userSql, userValues);
-    }
+//     if (setUser.length > 0) {
+//       const userSql = `
+//         UPDATE users SET ${setUser.join(', ')}
+//         WHERE id = ?
+//       `;
+//       userValues.push(userId);
+//       await conn.query(userSql, userValues);
+//     }
 
-    let tableName;
-    let idColumn;
-    let profileFields = [];
+//     let tableName;
+//     let idColumn;
+//     let profileFields = [];
 
-    if (userType === 'customer') {
-      tableName = 'customers';
-      idColumn = 'customer_id';
-      profileFields = ['birth_date', 'address'];
-    } else if (userType === 'businessOwner') {
-      tableName = 'business_owners';
-      idColumn = 'business_owner_id';
-      profileFields = ['business_name', 'description', 'website_url', 'logo_url'];
-    } else {
-      throw new Error("Invalid user type");
-    }
+//     if (userType === 'customer') {
+//       tableName = 'customers';
+//       idColumn = 'customer_id';
+//       profileFields = ['birth_date', 'address'];
+//     } else if (userType === 'businessOwner') {
+//       tableName = 'business_owners';
+//       idColumn = 'business_owner_id';
+//       profileFields = ['business_name', 'description', 'website_url', 'logo_url'];
+//     } else {
+//       throw new Error("Invalid user type");
+//     }
 
-    const setProfile = [];
-    const profileValues = [];
+//     const setProfile = [];
+//     const profileValues = [];
 
-    for (const key of profileFields) {
-      if (data[key] !== undefined) {
-        setProfile.push(`${key} = ?`);
-        profileValues.push(data[key]);
-      }
-    }
+//     for (const key of profileFields) {
+//       if (data[key] !== undefined) {
+//         setProfile.push(`${key} = ?`);
+//         profileValues.push(data[key]);
+//       }
+//     }
 
-    if (setProfile.length > 0) {
-      const profileSql = `
-        UPDATE ${tableName}
-        SET ${setProfile.join(', ')}
-        WHERE ${idColumn} = ?
-      `;
-      profileValues.push(userId);
-      await conn.query(profileSql, profileValues);
-    }
+//     if (setProfile.length > 0) {
+//       const profileSql = `
+//         UPDATE ${tableName}
+//         SET ${setProfile.join(', ')}
+//         WHERE ${idColumn} = ?
+//       `;
+//       profileValues.push(userId);
+//       await conn.query(profileSql, profileValues);
+//     }
 
-    await conn.commit();
-    return { success: true };
+//     await conn.commit();
+//     return { success: true };
 
-  } catch (err) {
-    await conn.rollback();
-    console.error("Error in updateUser:", err);
-    return { success: false, error: err.message };
-  } finally {
-    conn.release();
-  }
-}
+//   } catch (err) {
+//     await conn.rollback();
+//     console.error("Error in updateUser:", err);
+//     return { success: false, error: err.message };
+//   } finally {
+//     conn.release();
+//   }
+// }
 
-
- 
 };
 
 export default usersModel;

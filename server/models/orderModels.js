@@ -18,13 +18,26 @@ const ordersModel = {
     return result.insertId;
   },
 
-  addOrderItem: async (orderId, couponId, quantity, pricePerUnit, totalPrice) => {
+  bulkAddOrderItems: async (orderItems) => {
     await DB.query(
       `INSERT INTO order_items (order_id, coupon_id, quantity, price_per_unit, total_price)
-       VALUES (?, ?, ?, ?, ?)`,
-      [orderId, couponId, quantity, pricePerUnit, totalPrice]
+       VALUES ?`,
+      [orderItems]
     );
-  }
+  },
+getOrdersByCustomerId: async (customerId) => {
+  const [orders] = await DB.query(
+    `SELECT o.order_id, o.total_price, o.order_date, o.status,
+            oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
+     FROM orders o
+     LEFT JOIN order_items oi ON o.order_id = oi.order_id
+     WHERE o.customer_id = ?
+     ORDER BY o.order_date DESC`,
+    [customerId]
+  );
+  return orders;
+}
+
 };
 
 export default ordersModel;

@@ -25,7 +25,7 @@ const usersController = {
     let extraData = {};
     if (role === "customer") {
       const { birth_date,address } = req.body;
-      if (!birth_date|| !address) {
+      if (!birth_date) {
         return res.status(400).json({ error: "Birth date  is required for customers" });
       }
        if ( !address) {
@@ -112,31 +112,31 @@ const usersController = {
   }
   ,
 
-  update: async (req, res) => {
-  const userId = req.userId;
-  const userType = req.role; 
-  const incomingData = req.body;
+//   update: async (req, res) => {
+//   const userId = req.userId;
+//   const userType = req.role; 
+//   const incomingData = req.body;
 
-  const forbiddenFields = ['email', 'userName', 'role', 'id'];
+//   const forbiddenFields = ['email', 'userName', 'role', 'id'];
 
-  const filteredData = {};
-  for (const [key, value] of Object.entries(incomingData)) {
-    if (!forbiddenFields.includes(key)) {
-      filteredData[key] = value;
-    }
-  }
+//   const filteredData = {};
+//   for (const [key, value] of Object.entries(incomingData)) {
+//     if (!forbiddenFields.includes(key)) {
+//       filteredData[key] = value;
+//     }
+//   }
 
-  try {
-    const result = await userModel.updateUser(userId, filteredData, userType);
-    if (result.success) {
-      res.status(200).json({ message: "User updated successfully." });
-    } else {
-      res.status(400).json({ error: result.error || "Failed to update user." });
-    }
-  } catch (err) {
-    res.status(500).json({ error: "Server error", details: err.message });
-  }
-}
+//   try {
+//     const result = await userModel.updateUser(userId, filteredData, userType);
+//     if (result.success) {
+//       res.status(200).json({ message: "User updated successfully." });
+//     } else {
+//       res.status(400).json({ error: result.error || "Failed to update user." });
+//     }
+//   } catch (err) {
+//     res.status(500).json({ error: "Server error", details: err.message });
+//   }
+// }
 
  
 

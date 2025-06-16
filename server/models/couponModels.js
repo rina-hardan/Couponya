@@ -38,6 +38,14 @@ const couponsModel = {
     const [results] = await DB.query(sql, [id]);
     return results[0];
   },
+  getByIds: async (ids) => {
+    if (!ids || ids.length === 0) return [];
+
+    const placeholders = ids.map(() => '?').join(','); 
+    const sql = `SELECT * FROM coupons WHERE id IN (${placeholders})`;
+    const [results] = await DB.query(sql, ids);
+    return results;
+  },
 
  update: async (id, data) => {
   const fields = [];
