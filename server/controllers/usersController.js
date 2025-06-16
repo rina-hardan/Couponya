@@ -127,7 +127,7 @@ const usersController = {
   }
 
   try {
-    const result = await userModel.updateUser(userId, filteredData, userType);
+    const result = await usersModel.updateUser(userId, filteredData, userType);
     if (result.success) {
       res.status(200).json({ message: "User updated successfully." });
     } else {
