@@ -115,6 +115,7 @@ const usersController = {
   update: async (req, res) => {
   const userId = req.userId;
   const userType = req.role; 
+  const userEmail = req.email;
   const incomingData = req.body;
 
   const forbiddenFields = ['email', 'userName', 'role', 'id'];
