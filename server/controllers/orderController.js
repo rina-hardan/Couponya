@@ -5,8 +5,9 @@ import DB from "../DB/DBconnection.js";
 
 const ordersController = {
   createOrder: async (req, res) => {
-    const { customerId, items, usePoints } = req.body;
- 
+    const { items, usePoints } = req.body;
+    const customerId = req.userId;
+    const customerEmail = req.Email;
     if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: "Missing required data" });
     }
@@ -41,15 +42,14 @@ const ordersController = {
       await ordersModel.bulkAddOrderItems(orderItems, connection);
       await ordersModel.updateCustomerPoints(customerId, updatedPoints, connection);
 
-      // 🟡 שלב חדש: שליפת הקופונים לפי couponId
       const couponIds = items.map(item => item.couponId);
-      const coupons = await couponsModel.getCouponsByIds(couponIds, connection); // תחזירי רק id ו-code
+      const coupons = await couponsModel.getCouponsByIds(couponIds, connection); 
       const couponCodes = coupons.map(c => c.code).join(", ");
 
       await connection.commit();
 
-     const emailText = `Thank you for your order! Your coupon codes are:\n${couponCodes}`;
-     await sendMail("rina616235@gmail.com", "Your Coupons", emailText);
+      const emailText = `Thank you for your order! Your coupon codes are:\n${couponCodes}`;
+      await sendMail(customerEmail, "Your Coupons", emailText);
 
       res.status(201).json({
         message: "Order created and email sent successfully",
@@ -88,7 +88,6 @@ const ordersController = {
       res.status(500).json({ error: "Internal server error" });
     }
   }
-
 };
 
 export default ordersController;
