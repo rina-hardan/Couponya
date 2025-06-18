@@ -102,5 +102,3 @@ INSERT INTO categories (name) VALUES
 ('Restaurants and Food'),
 ('Vacations and Leisure');
 
-select * from categories;
-select * from regions;

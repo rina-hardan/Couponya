@@ -25,18 +25,46 @@ const ordersModel = {
       [orderItems]
     );
   },
-getOrdersByCustomerId: async (customerId) => {
-  const [orders] = await DB.query(
-    `SELECT o.order_id, o.total_price, o.order_date, o.status,
-            oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
-     FROM orders o
-     LEFT JOIN order_items oi ON o.order_id = oi.order_id
-     WHERE o.customer_id = ?
-     ORDER BY o.order_date DESC`,
-    [customerId]
-  );
+// getOrdersByCustomerId: async (customerId) => {
+//   const [orders] = await DB.query(
+//     `SELECT o.order_id, o.total_price, o.order_date, o.status,
+//             oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
+//      FROM orders o
+//      LEFT JOIN order_items oi ON o.order_id = oi.order_id
+//      WHERE o.customer_id = ?
+//      ORDER BY o.order_date DESC`,
+//     [customerId]
+//   );
+//   return orders;
+// }
+getOrdersByCustomerId: async ({ customerId, sort, limit, offset }) => {
+  let query = `
+    SELECT o.order_id, o.total_price, o.order_date, 
+           oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
+    FROM orders o
+    LEFT JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.customer_id = ?
+  `;
+  const params = [customerId];
+
+
+  const [sortField = "order_date", sortDirection = "desc"] = (sort || "order_date_desc").split("_");
+
+  const validSortFields = ["order_date", "total_price"];
+  const validDirections = ["asc", "desc"];
+
+  if (validSortFields.includes(sortField) && validDirections.includes(sortDirection)) {
+    query += ` ORDER BY o.${sortField} ${sortDirection.toUpperCase()}`;
+  } else {
+    query += ` ORDER BY o.order_date DESC`;
+  }
+
+  query += ` LIMIT ? OFFSET ?`;
+  params.push(parseInt(limit), parseInt(offset));
+
+  const [orders] = await DB.query(query, params);
   return orders;
-}
+},
 
 };
 

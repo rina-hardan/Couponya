@@ -1,8 +1,9 @@
 import express from "express";
 import ordersController from "../controllers/orderController.js";
+import { verifyToken } from "../middleware/auth.js";
 
 const orderRouter = express.Router();
 
-orderRouter.post("/create", ordersController.createOrder);
-orderRouter.get("/orders/:customerId", ordersController.getOrdersByCustomer);
+orderRouter.post("/create",verifyToken, ordersController.createOrder);
+orderRouter.get("/orders",verifyToken, ordersController.getOrdersByCustomer);
 export default orderRouter;

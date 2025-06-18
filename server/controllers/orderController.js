@@ -41,7 +41,6 @@ const ordersController = {
     await ordersModel.bulkAddOrderItems(orderItems, connection);
     await ordersModel.updateCustomerPoints(customerId, updatedPoints, connection);
 
-    // 🟡 שלב חדש: שליפת הקופונים לפי couponId
     const couponIds = items.map(item => item.couponId);
     const coupons = await couponsModel.getCouponsByIds(couponIds, connection); // תחזירי רק id ו-code
       const couponCodes = coupons.map(c => c.code).join(", ");
@@ -72,12 +71,27 @@ const ordersController = {
 ,
   getOrdersByCustomer: async (req, res) => {
   try {
-    const customerId = req.params.customerId;
+    const customerId = req.userId;
     if (!customerId) {
       return res.status(400).json({ error: "Missing customer ID" });
     }
+ const {
+      status,
+      sort = "created_at_desc", // ברירת מחדל
+      page = 1,
+      limit = 10
+    } = req.query;
 
-    const orders = await ordersModel.getOrdersByCustomerId(customerId);
+    const offset = (page - 1) * limit;
+
+    const orders = await ordersModel.getOrdersByCustomerId({
+      customerId,
+      sort,
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // const orders = await ordersModel.getOrdersByCustomerId(customerId);
 
     res.json({ orders });
   } catch (error) {
