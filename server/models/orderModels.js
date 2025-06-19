@@ -39,17 +39,22 @@ const ordersModel = {
 // }
 getOrdersByCustomerId: async ({ customerId, sort, limit, offset }) => {
   let query = `
-    SELECT o.order_id, o.total_price, o.order_date, 
-           oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
-    FROM orders o
-    LEFT JOIN order_items oi ON o.order_id = oi.order_id
+    SELECT o.id, o.total_price, o.order_date,
+            oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
     WHERE o.customer_id = ?
   `;
   const params = [customerId];
-
-
-  const [sortField = "order_date", sortDirection = "desc"] = (sort || "order_date_desc").split("_");
-
+let sortDirection;
+ let  sortField;
+if (sort) {
+  const underscoreIndex= sort .lastIndexOf("_");
+   if (underscoreIndex !== -1) {
+    sortField = sort.slice(0, underscoreIndex); // כל מה שלפני האחרון _
+    sortDirection = sort.slice(underscoreIndex + 1); // כל מה שאחריו
+  }
+}
   const validSortFields = ["order_date", "total_price"];
   const validDirections = ["asc", "desc"];
 

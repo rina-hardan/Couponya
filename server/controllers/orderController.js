@@ -81,7 +81,7 @@ const ordersController = {
     }
  const {
       status,
-      sort = "created_at_desc", // ברירת מחדל
+      sort = "created_at_desc", 
       page = 1,
       limit = 10
     } = req.query;
