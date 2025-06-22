@@ -28,9 +28,12 @@ const ProfileDetails = () => {
     e.preventDefault();
     try {
       const result = await fetchFromServer("/users/update", "PUT", formData);
-      if (result.message) {
         alert("Updated successfully");
-        
+        if(result.user.role === "customer") {
+          navigate("/CustomerHome");
+        }
+        else if(result.user.role === "business_owner") {
+          navigate("/BusinessOwnerHome");
       } else {
         alert(result.error || "Update failed");
       }
