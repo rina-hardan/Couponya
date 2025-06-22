@@ -18,7 +18,6 @@ couponsRouter.get('/:id', couponsController.getCouponById);
 //updateCoupon
 couponsRouter.put('/confirmCoupon/:couponId',verifyToken,isAdmin, couponsController.confirmCoupon);
 couponsRouter.put('/:id',verifyToken, couponsController.updateCoupon);
-
 couponsRouter.delete('/:id',verifyToken, couponsController.deleteCoupon);
 
 couponsRouter.post('/:id/purchases',verifyToken, couponsController.getPurchasesCount);
