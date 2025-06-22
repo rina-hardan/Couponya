@@ -119,7 +119,7 @@ updateUser: async (userId, data, userType) => {
       tableName = 'customers';
       idColumn = 'customer_id';
       profileFields = ['address'];
-    } else if (userType === 'businessOwner') {
+    } else if (userType === 'business_owner') {
       tableName = 'business_owners';
       idColumn = 'business_owner_id';
       profileFields = ['business_name', 'description', 'website_url', 'logo_url'];

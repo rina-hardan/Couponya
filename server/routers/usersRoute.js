@@ -6,5 +6,5 @@ const usersRouter = express.Router();
 
 usersRouter.post("/register",conditionalUpload, usersController.register);
 usersRouter.post("/login", usersController.login);
- usersRouter.put("/update", verifyToken, usersController.update);
+ usersRouter.put("/update", verifyToken,conditionalUpload, usersController.update);
 export default usersRouter;

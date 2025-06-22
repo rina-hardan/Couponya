@@ -118,7 +118,7 @@ const usersController = {
   const userType = req.role; 
   const userEmail = req.email;
   const incomingData = req.body;
-
+   
   const forbiddenFields = ['email', 'userName', 'role', 'id'];
 
   const filteredData = {};
@@ -127,7 +127,9 @@ const usersController = {
       filteredData[key] = value;
     }
   }
-
+ if (req.file) {
+  filteredData.logo_url = `/uploads/${req.file.filename}`;
+    }
   try {
     const result = await usersModel.updateUser(userId, filteredData, userType);
     if (result.success) {
