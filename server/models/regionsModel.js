@@ -1,10 +1,10 @@
 import DB from "../DB/DBconnection.js"; 
 
 const regionsModel = {
-  addRegion: async ({ name }) => {
+  addRegion: async ({ name, img_url }) => {
     try {
-      const sql = `INSERT INTO regions (name) VALUES (?)`;
-      const [result] = await DB.query(sql, [name]);
+      const sql = `INSERT INTO regions (name, img_url) VALUES (?, ?)`;
+      const [result] = await DB.query(sql, [name, img_url]);
 
       return { success: true, id: result.insertId };
     } catch (err) {

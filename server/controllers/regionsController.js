@@ -9,8 +9,9 @@ const regionsController = {
     if (!name ) {
       return res.status(400).json({ error: "name of region is required" });
     }
+       const img_url = req.file ? `/uploads/${req.file.filename}` : null;
 
-       returnedData = await regionsModel.addRegion({ name });
+      const returnedData = await regionsModel.addRegion({ name, img_url });
       if (!returnedData.success) {
         return res.status(500).json({ error: "Failed to add region" });
       }
