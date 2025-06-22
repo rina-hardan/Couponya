@@ -29,8 +29,11 @@ export default function Login() {
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
-        alert("Login successful!");
-        navigate("/home");
+         alert("Login successful!");
+        if (result.user.role === "customer") {
+          navigate("/CustomerHome");
+        } else if (result.user.role === "business_owner") 
+          {navigate("/BusinessOwnerHome"); }
       }
     } catch (error) {
       alert(error.message || "Login failed. Please try again.");

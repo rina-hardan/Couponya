@@ -51,7 +51,8 @@ const usersModel = {
       additionalDetails = businessResults[0] || {};
     }
 
-    delete additionalDetails. customer_id||delete additionalDetails.business_owner_id;
+    delete additionalDetails.customer_id;
+    delete additionalDetails.business_owner_id;
     
     Object.assign(user, additionalDetails);
 

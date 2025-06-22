@@ -8,17 +8,16 @@ import {
   Divider
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 import LogoutIcon from "@mui/icons-material/Logout";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { useNavigate } from "react-router-dom";
-import CategoriesList from "../components/CategoriesList";
 import logo from "../pic/logo.png";
-import "../css/Home.css";
+import "../css/BusinessOwnerHome.css";
 
-export default function Home() {
+export default function BusinessOwnerHome() {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = JSON.parse(localStorage.getItem("user"));
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -29,9 +28,11 @@ export default function Home() {
     navigate("/profile");
   };
 
-  const goToHistory = () => {
+  const handleLogout = () => {
     handleClose();
-    navigate("/order-history");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   return (
@@ -54,8 +55,8 @@ export default function Home() {
                 }
               }}
             >
-              <AccountCircleIcon sx={{ mr: 1 }} />
-              <Typography>Hello {currentUser.userName}</Typography>
+              <BusinessCenterIcon sx={{ mr: 1 }} />
+              <Typography>Hello {currentUser?.userName}</Typography>
             </IconButton>
 
             <Menu
@@ -76,12 +77,8 @@ export default function Home() {
                 <AccountCircleIcon sx={{ mr: 1 }} />
                 <Typography>Personal Details</Typography>
               </MenuItem>
-              <MenuItem onClick={goToHistory}>
-                <ListAltIcon sx={{ mr: 1 }} />
-                <Typography>Order History</Typography>
-              </MenuItem>
               <Divider />
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handleLogout}>
                 <LogoutIcon sx={{ mr: 1 }} />
                 <Typography>Logout</Typography>
               </MenuItem>
@@ -90,7 +87,9 @@ export default function Home() {
         </header>
 
         <main className="main-content">
-          <CategoriesList />
+          <Typography variant="h4" className="welcome-text">
+            Welcome to your business dashboard, {currentUser?.name}!
+          </Typography>
         </main>
       </div>
     </div>
