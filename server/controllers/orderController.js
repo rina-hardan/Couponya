@@ -5,7 +5,7 @@ import DB from "../DB/DBconnection.js";
 
 const ordersController = {
   createOrder: async (req, res) => {
-    const { items, usePoints } = req.body;
+    const { items, usePoints,customerBirthDate } = req.body;
    
     const customerId = req.userId;
     const customerEmail = req.email;
@@ -29,6 +29,11 @@ const ordersController = {
       const updatedPoints = currentPoints - pointsUsed + pointsEarned;
 
       const orderDate = new Date();
+      const birthDate = new Date(customerBirthDate);
+      
+
+      if(orderDate.getMonth()==birthDate.getMonth())
+        totalPrice *= 0.9; // 10% discount if order is made in the customer's birth month
       const orderId = await ordersModel.createOrder(customerId, totalPrice, orderDate, connection);
 
       const orderItems = items.map(item => [
