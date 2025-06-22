@@ -54,8 +54,13 @@ export default function Register() {
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
-        alert("Registration successful!");
-        navigate("/home");
+         alert("Registration successful!");
+        if(result.user.role === "customer") {
+          navigate("/CustomerHome");
+        }
+        else if(result.user.role === "business_owner") {
+          navigate("/BusinessOwnerHome");
+        }
       }
     } catch (err) {
       alert(err.message || "Registration failed");
