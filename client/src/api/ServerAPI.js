@@ -1,26 +1,27 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/",
-  headers: {
-    "Content-Type": "application/json"
-  }
+  baseURL: "http://localhost:5000/"
 });
 
 export async function fetchFromServer(endpoint, method = "GET", body = null) {
   try {
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
 
     const config = {
       url: endpoint,
-      method,
+      method: method, 
       headers: {
-        ...(token && { Authorization: `${token}` }) 
+        ...(token && { Authorization: `${token}` })
       }
     };
 
     if (body) {
       config.data = body;
+
+      if (!(body instanceof FormData)) {
+        config.headers["Content-Type"] = "application/json";
+      }
     }
 
     const response = await axiosInstance(config);

@@ -1,24 +1,24 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchFromServer } from "../api/ServerAPI";
 import {
   Avatar,
   Box,
   Button,
   Container,
   CssBaseline,
-  Grid,
-  Link,
   Paper,
   TextField,
   Typography,
   MenuItem,
+  Link,
 } from "@mui/material";
 import logo from "../pic/logo.png";
 import "../css/Register.css";
+import { fetchFromServer } from "../api/ServerAPI";
 
 export default function Register() {
   const [isCustomer, setIsCustomer] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
   const navigate = useNavigate();
 
   const handleRoleChange = (e) => {
@@ -31,39 +31,28 @@ export default function Register() {
     const form = e.target;
     const formData = new FormData(form);
 
-    const userData = {
-      userName: formData.get("username"),
-      name: formData.get("name"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-      role: formData.get("role"),
-    };
-
-    if (isCustomer) {
-      userData.birth_date = formData.get("birth_date");
-      userData.address = formData.get("address");
-    } else {
-      userData.business_name = formData.get("business_name");
-      userData.description = formData.get("description");
-      userData.website_url = formData.get("website_url");
-      userData.logo_url = formData.get("logo_url");
+    if (!isCustomer && logoFile) {
+      formData.append("logo", logoFile);
     }
 
     try {
-      const result = await fetchFromServer("users/register", "POST", userData);
+     const result = await fetchFromServer("users/register", "POST", formData);
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
-         alert("Registration successful!");
-        if(result.user.role === "customer") {
+        alert("Registration successful!");
+
+        if (result.user.role === "customer") {
           navigate("/CustomerHome");
-        }
-        else if(result.user.role === "business_owner") {
+        } else if (result.user.role === "business_owner") {
           navigate("/BusinessOwnerHome");
         }
+      } else {
+        alert(result.error || "Registration failed");
       }
     } catch (err) {
-      alert(err.message || "Registration failed");
+      console.error(err);
+      alert("Registration failed");
     }
   };
 
@@ -114,15 +103,25 @@ export default function Register() {
                   <TextField fullWidth name="business_name" label="Business Name" required />
                   <TextField fullWidth name="description" label="Description" multiline rows={3} />
                   <TextField fullWidth name="website_url" label="Website URL" />
-                  <TextField fullWidth name="logo_url" label="Logo URL" />
+                  
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Upload Logo
+                  </Typography>
+                  <input
+                    type="file"
+                    name="logo"
+                    accept="image/*"
+                    onChange={(e) => setLogoFile(e.target.files[0])}
+                    required
+                  />
                 </>
               )}
 
-              <Button type="submit" fullWidth variant="contained" className="register-button">
+              <Button type="submit" fullWidth variant="contained" className="register-button" sx={{ mt: 2 }}>
                 Register
               </Button>
 
-              <Typography variant="body2" className="register-link">
+              <Typography variant="body2" className="register-link" sx={{ mt: 2 }}>
                 Already have an account?{" "}
                 <Link onClick={() => navigate("/login")} className="login-nav-link">
                   Login here
