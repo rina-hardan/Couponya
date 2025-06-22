@@ -33,7 +33,8 @@ const usersController = {
       }
       extraData = { birth_date, address };
     } else if (role === "business_owner") {
-      const { business_name, description, website_url, logo_url } = req.body;
+      const { business_name, description, website_url } = req.body;
+       const logo_url = req.file ? `/uploads/${req.file.filename}` : null;
       if (!business_name) {
         return res.status(400).json({ error: "Business name is required for business owners" });
       }
@@ -117,7 +118,7 @@ const usersController = {
   const userType = req.role; 
   const userEmail = req.email;
   const incomingData = req.body;
-
+   
   const forbiddenFields = ['email', 'userName', 'role', 'id'];
 
   const filteredData = {};
@@ -126,7 +127,9 @@ const usersController = {
       filteredData[key] = value;
     }
   }
-
+ if (req.file) {
+  filteredData.logo_url = `/uploads/${req.file.filename}`;
+    }
   try {
     const result = await usersModel.updateUser(userId, filteredData, userType);
     if (result.success) {

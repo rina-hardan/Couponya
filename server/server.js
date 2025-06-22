@@ -1,6 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors'; 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import usersRouter from "../server/routers/usersRoute.js"
 import couponsRouter from "../server/routers/couponRoute.js"
 import orderRouter from "../server/routers/orderRoute.js"
@@ -14,11 +17,20 @@ const PORT = process.env.PORT||5000;
 
 app.use(cors()); 
 app.use(express.json()); 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const decodedDirname = decodeURIComponent(__dirname);
+
+const uploadsStaticPath = path.join(decodedDirname, 'uploads');
+
+app.use('/uploads', express.static(uploadsStaticPath));
+
 app.use("/users",usersRouter); 
 app.use("/coupons",couponsRouter); 
 app.use("/order",orderRouter); 
 app.use("/categories",categoriesRouter); 
 app.use("/regions",regionsRouter);
+
 
 app.get('/', (req, res) => {
   res.send('Server is running!');
