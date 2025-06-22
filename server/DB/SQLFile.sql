@@ -38,13 +38,15 @@ CREATE TABLE IF NOT EXISTS business_owners (
 -- טבלת קטגוריות
 CREATE TABLE IF NOT EXISTS categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL 
+  name VARCHAR(100) NOT NULL ,
+  img_url VARCHAR(255) 
 );
 
 -- טבלת אזורים
 CREATE TABLE IF NOT EXISTS regions (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL 
+  name VARCHAR(100) NOT NULL,
+  img_url VARCHAR(255) 
 );
 
 -- טבלת קופונים

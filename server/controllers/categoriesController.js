@@ -8,8 +8,9 @@ const categoriesController = {
       if (!name) {
         return res.status(400).json({ error: "Category name is required" });
       }
+       const img_url = req.file ? `/uploads/${req.file.filename}` : null;
 
-      const result = await categoriesModel.addCategory({ name });
+      const result = await categoriesModel.addCategory({ name, img_url });
       if (!result.success) {
         return res.status(500).json({ error: "Failed to add category" });
       }

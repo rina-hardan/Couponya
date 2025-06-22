@@ -1,10 +1,10 @@
 import DB from "../DB/DBconnection.js";
 
 const categoriesModel = {
-  addCategory: async ({ name }) => {
+  addCategory: async ({ name, img_url }) => {
     try {
-      const sql = `INSERT INTO categories (name) VALUES (?)`;
-      const [result] = await DB.query(sql, [name]);
+      const sql = `INSERT INTO categories (name, img_url) VALUES (?, ?)`;
+      const [result] = await DB.query(sql, [name, img_url]);
       return { success: true, id: result.insertId };
     } catch (err) {
       console.error("Error in addCategory:", err);
@@ -21,17 +21,7 @@ const categoriesModel = {
       console.error("Error in getCategories:", err);
       throw err;
     }
-  },
-   getUnConfirmedCoupons: async () => {
-    try {
-      const sql = `SELECT * FROM coupons WHERE status = 'pending'`;
-      const [rows] = await DB.query(sql);
-      return rows;
-    } catch (err) {
-      console.error("Error in getUnConfirmedCoupons:", err);
-      throw err;
-    }
-}
+  }
 };
 
 export default categoriesModel;
