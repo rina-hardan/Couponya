@@ -22,22 +22,45 @@ const usersModel = {
     }
   },
 
-  getUserByEmail: async (email) => {
-    const query = `
-      SELECT users.*, passwords.password AS password
-      FROM users
-      JOIN passwords ON users.id = passwords.user_id
-      WHERE users.email = ?
-    `;
+ getUserByEmail: async (email) => {
+  const query = `
+    SELECT users.*, passwords.password AS password
+    FROM users
+    JOIN passwords ON users.id = passwords.user_id
+    WHERE users.email = ?
+  `;
 
-    try {
-      const [results] = await DB.query(query, [email]);
-      if (results.length === 0) return null;
-      return results[0];
-    } catch (err) {
-      throw err;
+  try {
+    const [results] = await DB.query(query, [email]);
+    if (results.length === 0) return null;
+
+    const user = results[0];
+
+    let additionalDetails = {};
+    if (user.role === 'customer') {
+      const [customerResults] = await DB.query(
+        'SELECT * FROM customers WHERE customer_id = ?',
+        [user.id]
+      );
+      additionalDetails = customerResults[0] || {};
+    } else if (user.role === 'business_owner') {
+      const [businessResults] = await DB.query(
+        'SELECT * FROM business_owners WHERE business_owner_id = ?',
+        [user.id]
+      );
+      additionalDetails = businessResults[0] || {};
     }
-  },
+
+    delete additionalDetails. customer_id||delete additionalDetails.business_owner_id;
+    
+    Object.assign(user, additionalDetails);
+
+    return user;
+  } catch (err) {
+    throw err;
+  }
+}
+,
   registerBusinessOwner: async ({ userId, business_name, description, website_url, logo_url }) => {
   try {
     const [result] = await DB.query(
@@ -56,7 +79,7 @@ const usersModel = {
       "INSERT INTO customers (customer_id, birth_date,address) VALUES (?, ?,?)",
       [userId, birth_date, address]
     );
-    return { success: true, points: result.points };
+    return { success: true, points: result.points};
   } catch (err) {
     console.error("Error in registerCustomer:", err);
     return { success: false, error: err };

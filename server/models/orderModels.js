@@ -39,22 +39,25 @@ const ordersModel = {
 // }
 getOrdersByCustomerId: async ({ customerId, sort, limit, offset }) => {
   let query = `
-    SELECT o.id, o.total_price, o.order_date,
-            oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
-      FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
+    SELECT o.id as order_id, o.total_price, o.order_date,
+           oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price,
+           c.title as coupon_title
+    FROM orders o
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    LEFT JOIN coupons c ON oi.coupon_id = c.id
     WHERE o.customer_id = ?
   `;
+
   const params = [customerId];
-let sortDirection;
- let  sortField;
-if (sort) {
-  const underscoreIndex= sort .lastIndexOf("_");
-   if (underscoreIndex !== -1) {
-    sortField = sort.slice(0, underscoreIndex); // כל מה שלפני האחרון _
-    sortDirection = sort.slice(underscoreIndex + 1); // כל מה שאחריו
+
+  let sortDirection;
+  let sortField;
+  const underscoreIndex = sort?.lastIndexOf("_");
+  if (underscoreIndex !== -1) {
+    sortField = sort.slice(0, underscoreIndex);
+    sortDirection = sort.slice(underscoreIndex + 1);
   }
-}
+
   const validSortFields = ["order_date", "total_price"];
   const validDirections = ["asc", "desc"];
 
@@ -67,9 +70,31 @@ if (sort) {
   query += ` LIMIT ? OFFSET ?`;
   params.push(parseInt(limit), parseInt(offset));
 
-  const [orders] = await DB.query(query, params);
-  return orders;
-},
+  const [rows] = await DB.query(query, params);
+
+  const ordersMap = {};
+
+  for (const row of rows) {
+    if (!ordersMap[row.order_id]) {
+      ordersMap[row.order_id] = {
+        id: row.order_id,
+        total_price: row.total_price,
+        order_date: row.order_date,
+        items: [],
+      };
+    }
+    ordersMap[row.order_id].items.push({
+      coupon_id: row.coupon_id,
+      title: row.coupon_title,
+      quantity: row.quantity,
+      price_per_unit: row.price_per_unit,
+      item_total_price: row.item_total_price,
+    });
+  }
+
+  return Object.values(ordersMap);
+}
+
 
 };
 

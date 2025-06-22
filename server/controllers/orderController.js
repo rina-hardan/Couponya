@@ -6,13 +6,13 @@ import DB from "../DB/DBconnection.js";
 const ordersController = {
   createOrder: async (req, res) => {
     const { items, usePoints } = req.body;
+   
     const customerId = req.userId;
-    const customerEmail = req.Email;
+    const customerEmail = req.email;
     if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: "Missing required data" });
     }
     const connection = await DB.getConnection();
-
     try {
       await connection.beginTransaction();
 
@@ -36,7 +36,7 @@ const ordersController = {
         item.couponId,
         item.quantity,
         item.pricePerUnit,
-        item.pricePerUnit * item.quantity
+        item.pricePerUnit * item.quantity,
       ]);
 
       await ordersModel.bulkAddOrderItems(orderItems, connection);
@@ -44,7 +44,7 @@ const ordersController = {
 
     const couponIds = items.map(item => item.couponId);
     const coupons = await couponsModel.getCouponsByIds(couponIds, connection); // תחזירי רק id ו-code
-      const couponCodes = coupons.map(c => c.code).join(", ");
+      const couponCodesAndTitles = coupons.map(c => `${c.code} - ${c.title}`).join(", ");
 
       await connection.commit();
 

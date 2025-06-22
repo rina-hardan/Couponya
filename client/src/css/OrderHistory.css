@@ -1,0 +1,68 @@
+.order-history-page {
+  background: #fffef5;
+  min-height: 100vh;
+  padding: 60px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.order-history-page h2 {
+  color: #2c3e50;
+  margin-bottom: 40px;
+  text-align: center;
+  font-size: 28px;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.order-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  padding: 25px 30px;
+  direction: ltr;
+  transition: 0.2s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.order-card h3 {
+  margin: 0 0 20px;
+  color: #333;
+  font-size: 20px;
+  text-align: right;
+}
+
+.order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.order-items-table th,
+.order-items-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.order-items-table th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.order-date,
+.order-total {
+  font-size: 16px;
+  margin-top: 6px;
+  color: #444;
+  text-align: right;
+}
