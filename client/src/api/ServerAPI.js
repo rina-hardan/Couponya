@@ -9,10 +9,16 @@ const axiosInstance = axios.create({
 
 export async function fetchFromServer(endpoint, method = "GET", body = null) {
   try {
+    const token = localStorage.getItem("token"); 
+
     const config = {
       url: endpoint,
       method,
-    }
+      headers: {
+        ...(token && { Authorization: `${token}` }) 
+      }
+    };
+
     if (body) {
       config.data = body;
     }
@@ -21,7 +27,7 @@ export async function fetchFromServer(endpoint, method = "GET", body = null) {
     return response.data;
   } catch (error) {
     console.error("Axios error:", error);
-    if (error.response && error.response.data && error.response.data.message) {
+    if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw error;

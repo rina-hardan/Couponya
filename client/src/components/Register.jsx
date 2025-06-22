@@ -1,21 +1,34 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../css/Register.css';
-import { fetchFromServer } from "../api/ServerAPI.js";
-import logo from '../pic/logo.png'; // Adjust the path as necessary
+import { fetchFromServer } from "../api/ServerAPI";
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  Grid,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+  MenuItem,
+} from "@mui/material";
+import logo from "../pic/logo.png";
+import "../css/Register.css";
 
 export default function Register() {
   const [isCustomer, setIsCustomer] = useState(null);
   const navigate = useNavigate();
 
   const handleRoleChange = (e) => {
-    const selectedRole = e.target.value;
-    setIsCustomer(selectedRole === "customer");
+    const role = e.target.value;
+    setIsCustomer(role === "customer");
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const form = e.target.form;
+    const form = e.target;
     const formData = new FormData(form);
 
     const userData = {
@@ -40,91 +53,80 @@ export default function Register() {
       const result = await fetchFromServer("users/register", "POST", userData);
       if (result.token) {
         localStorage.setItem("token", result.token);
+        localStorage.setItem("currentUser", JSON.stringify(result.user));
         alert("Registration successful!");
         navigate("/home");
       }
-    } catch (error) {
-      alert(error.message || "Something went wrong during registration.");
-      console.error("Registration error:", error);
+    } catch (err) {
+      alert(err.message || "Registration failed");
     }
   };
 
   return (
-    <div className="register-wrapper">
-      <div className="register-container">
-        <img src={logo} alt="Couponya Logo" className="logo" />
-        <h2>Welcome to Couponya</h2>
-        <p className="subtitle">Create your account</p>
-        <form className="register-form">
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input type="text" id="username" name="username" required />
-          </div>
+    <Box className="register-page">
+      <Container maxWidth="xs">
+        <CssBaseline />
+        <Paper elevation={4} className="register-paper">
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <div className="register-logo-wrapper">
+              <img src={logo} alt="Couponya Logo" />
+            </div>
+            <Typography component="h1" variant="h5" className="register-title">
+              Welcome to Couponya
+            </Typography>
+            <Typography variant="body2" className="register-subtitle">
+              Create your account
+            </Typography>
 
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
-            <input type="text" id="name" name="name" required />
-          </div>
+            <Box component="form" onSubmit={handleRegister} className="register-form">
+              <TextField fullWidth name="username" label="Username" required />
+              <TextField fullWidth name="name" label="Full Name" required />
+              <TextField fullWidth name="email" label="Email" type="email" required />
+              <TextField fullWidth name="password" label="Password" type="password" required />
 
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" id="email" name="email" required />
-          </div>
+              <TextField
+                fullWidth
+                select
+                name="role"
+                label="Select Role"
+                required
+                onChange={handleRoleChange}
+              >
+                <MenuItem value="">-- Choose Role --</MenuItem>
+                <MenuItem value="customer">Customer</MenuItem>
+                <MenuItem value="business_owner">Business Owner</MenuItem>
+              </TextField>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" id="password" name="password" required />
-          </div>
+              {isCustomer && (
+                <>
+                  <TextField fullWidth name="birth_date" label="Birth Date" type="date" InputLabelProps={{ shrink: true }} required />
+                  <TextField fullWidth name="address" label="Address" required />
+                </>
+              )}
 
-          <div className="form-group">
-            <label htmlFor="role">Select Role</label>
-            <select id="role" name="role" required onChange={handleRoleChange}>
-              <option value="">-- Choose Role --</option>
-              <option value="customer">Customer</option>
-              <option value="business_owner">Business Owner</option>
-            </select>
-          </div>
+              {isCustomer === false && (
+                <>
+                  <TextField fullWidth name="business_name" label="Business Name" required />
+                  <TextField fullWidth name="description" label="Description" multiline rows={3} />
+                  <TextField fullWidth name="website_url" label="Website URL" />
+                  <TextField fullWidth name="logo_url" label="Logo URL" />
+                </>
+              )}
 
-          {isCustomer && (
-            <>
-              <div className="form-group">
-                <label htmlFor="birth_date">Birth Date</label>
-                <input type="date" id="birth_date" name="birth_date" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="address">Address</label>
-                <input type="text" id="address" name="address" required />
-              </div>
-            </>
-          )}
+              <Button type="submit" fullWidth variant="contained" className="register-button">
+                Register
+              </Button>
 
-          {isCustomer === false && (
-            <>
-              <div className="form-group">
-                <label htmlFor="business_name">Business Name</label>
-                <input type="text" id="business_name" name="business_name" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="description">Description</label>
-                <textarea id="description" name="description" rows="3" />
-              </div>
-              <div className="form-group">
-                <label htmlFor="website_url">Website URL</label>
-                <input type="url" id="website_url" name="website_url" />
-              </div>
-              <div className="form-group">
-                <label htmlFor="logo_url">Logo URL</label>
-                <input type="url" id="logo_url" name="logo_url" />
-              </div>
-            </>
-          )}
-
-          <button type="submit" className="submit-btn" onClick={handleRegister}>Register</button>
-          <p className="login-link">
-            Already have an account? <span onClick={() => navigate("/login")}>Login here</span>
-          </p>
-        </form>
-      </div>
-    </div>
+              <Typography variant="body2" className="register-link">
+                Already have an account?{" "}
+                <Link onClick={() => navigate("/login")} className="login-nav-link">
+                  Login here
+                </Link>
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

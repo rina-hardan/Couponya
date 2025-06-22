@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS passwords (
 CREATE TABLE IF NOT EXISTS customers (
   customer_id INT PRIMARY KEY,
   birth_date DATE,
-  address VARCHAR(255),
+  address VARCHAR(100),
   points INT DEFAULT 0,
   FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -38,13 +38,13 @@ CREATE TABLE IF NOT EXISTS business_owners (
 -- טבלת קטגוריות
 CREATE TABLE IF NOT EXISTS categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL
+  name VARCHAR(100) NOT NULL 
 );
 
 -- טבלת אזורים
 CREATE TABLE IF NOT EXISTS regions (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL
+  name VARCHAR(100) NOT NULL 
 );
 
 -- טבלת קופונים

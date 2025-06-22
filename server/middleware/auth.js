@@ -10,8 +10,8 @@ export function verifyToken(req, res, next) {
         req.userId = decoded.userId;
         req.role = decoded.role;
         req.email = decoded.email;
-        console.log("decoded.email:", decoded.email);
-        console.log("decoded.role:", decoded.role);
+        // console.log("decoded.email:", decoded.email);
+        // console.log("decoded.role:", decoded.role);
         next();
 
     } catch (error) {

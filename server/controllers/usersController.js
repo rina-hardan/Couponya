@@ -31,7 +31,7 @@ const usersController = {
        if ( !address) {
         return res.status(400).json({ error: "address is required for customers" });
       }
-      extraData = { birth_date };
+      extraData = { birth_date, address };
     } else if (role === "business_owner") {
       const { business_name, description, website_url } = req.body;
        const logo_url = req.file ? `/uploads/${req.file.filename}` : null;
