@@ -30,13 +30,15 @@ export default function Register() {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-
+    
     if (!isCustomer && logoFile) {
       formData.append("logo", logoFile);
     }
-
+for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
     try {
-     const result = await fetchFromServer("users/register", "POST", formData);
+      const result = await fetchFromServer("users/register", "POST", formData);
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
@@ -73,7 +75,7 @@ export default function Register() {
             </Typography>
 
             <Box component="form" onSubmit={handleRegister} className="register-form">
-              <TextField fullWidth name="username" label="Username" required />
+              <TextField fullWidth name="userName" label="Username" required />
               <TextField fullWidth name="name" label="Full Name" required />
               <TextField fullWidth name="email" label="Email" type="email" required />
               <TextField fullWidth name="password" label="Password" type="password" required />
@@ -103,7 +105,7 @@ export default function Register() {
                   <TextField fullWidth name="business_name" label="Business Name" required />
                   <TextField fullWidth name="description" label="Description" multiline rows={3} />
                   <TextField fullWidth name="website_url" label="Website URL" />
-                  
+
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     Upload Logo
                   </Typography>
