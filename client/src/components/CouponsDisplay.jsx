@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate ,useLocation} from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   TextField,
@@ -14,6 +13,7 @@ import {
 } from "@mui/material";
 import CouponCard from "./CouponCard";
 import { fetchFromServer } from "../api/ServerAPI";
+import { useLocation } from "react-router-dom";
 
 const sortOptions = [
   { value: "price_asc", label: "מחיר - מהנמוך לגבוה" },
@@ -23,81 +23,135 @@ const sortOptions = [
 ];
 
 const CouponsDisplay = () => {
-    const location = useLocation();
+  const location = useLocation();
 
   const [categoryId, setCategoryId] = useState(location.state?.categoryId || 0);
   const [regionId, setRegionId] = useState(0);
+
+  // 👇 טווח מחיר - משתמש בערך זמני + קבוע
+  const [priceRangeInput, setPriceRangeInput] = useState([0, 1000]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);
-  const [search, setSearch] = useState("");
+
   const [sort, setSort] = useState("date_desc");
+
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+
   const [coupons, setCoupons] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  const [loadingFilters, setLoadingFilters] = useState(true);
   const [loadingCoupons, setLoadingCoupons] = useState(false);
 
   const [categoriesList, setCategoriesList] = useState([{ id: 0, name: "כל הקטגוריות" }]);
   const [regionsList, setRegionsList] = useState([{ id: 0, name: "כל האזורים" }]);
-  const [loadingFilters, setLoadingFilters] = useState(true);
+
+  const limit = 12;
+
+  // חיפוש - debounce
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setSearch(searchInput);
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [searchInput]);
 
   const fetchCategories = async () => {
-    try {
-      const data = await fetchFromServer("/categories");
-      setCategoriesList([{ id: 0, name: "כל הקטגוריות" }, ...data.categories]);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
+    const data = await fetchFromServer("/categories");
+    setCategoriesList([{ id: 0, name: "כל הקטגוריות" }, ...data.categories]);
   };
 
   const fetchRegions = async () => {
-    try {
-      const data = await fetchFromServer("/regions");
-      setRegionsList([{ id: 0, name: "כל האזורים" }, ...data.regions]);
-    } catch (error) {
-      console.error("Error fetching regions:", error);
-    }
+    const data = await fetchFromServer("/regions");
+    setRegionsList([{ id: 0, name: "כל האזורים" }, ...data.regions]);
   };
 
-  const fetchCoupons = async () => {
-    setLoadingCoupons(true);
-    try {
-      const params = {
-        categoryId: categoryId === 0 ? undefined : categoryId,
-        regionId: regionId === 0 ? undefined : regionId,
-        minPrice,
-        maxPrice,
-        search,
-        sort,
-        limit: 50,
-        offset: 0,
-      };
+  const fetchCoupons = useCallback(
+    async (loadMore = false) => {
+      if (loadingCoupons || (!hasMore && loadMore)) return;
 
-      Object.keys(params).forEach(
-        (key) => params[key] === undefined && delete params[key]
-      );
+      setLoadingCoupons(true);
 
-      const queryString = new URLSearchParams(params).toString();
-      const data = await fetchFromServer(`/coupons?${queryString}`);
-      setCoupons(data);
-    } catch (error) {
-      console.error("Error fetching coupons:", error);
-      setCoupons([]);
-    }
-    setLoadingCoupons(false);
-  };
+      try {
+        const params = {
+          categoryId: categoryId === 0 ? undefined : categoryId,
+          regionId: regionId === 0 ? undefined : regionId,
+          minPrice,
+          maxPrice,
+          search,
+          sort,
+          limit,
+          offset: loadMore ? offset : 0,
+        };
+
+        Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+
+        const queryString = new URLSearchParams(params).toString();
+        const data = await fetchFromServer(`/coupons?${queryString}`);
+
+        if (loadMore) {
+          setCoupons((prev) => [...prev, ...data]);
+          setOffset((prev) => prev + data.length);
+        } else {
+          setCoupons(data);
+          setOffset(data.length);
+        }
+
+        setHasMore(data.length === limit);
+      } catch (error) {
+        console.error("Error fetching coupons:", error);
+      } finally {
+        setLoadingCoupons(false);
+      }
+    },
+    [categoryId, regionId, minPrice, maxPrice, search, sort, offset, loadingCoupons, hasMore]
+  );
 
   useEffect(() => {
-    async function fetchFilters() {
+    const fetchFilters = async () => {
       setLoadingFilters(true);
       await Promise.all([fetchCategories(), fetchRegions()]);
       setLoadingFilters(false);
-    }
+    };
     fetchFilters();
   }, []);
 
   useEffect(() => {
     if (!loadingFilters) {
-      fetchCoupons();
+      setOffset(0);
+      setHasMore(true);
+      fetchCoupons(false);
     }
   }, [categoryId, regionId, minPrice, maxPrice, search, sort, loadingFilters]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 150 &&
+        !loadingCoupons &&
+        hasMore
+      ) {
+        fetchCoupons(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [fetchCoupons, loadingCoupons, hasMore]);
+
+  const resetFilters = () => {
+    setCategoryId(0);
+    setRegionId(0);
+    setPriceRangeInput([0, 1000]);
+    setMinPrice(0);
+    setMaxPrice(1000);
+    setSearchInput("");
+    setSort("date_desc");
+    setOffset(0);
+    setHasMore(true);
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -111,15 +165,7 @@ const CouponsDisplay = () => {
         </Box>
       ) : (
         <>
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 2,
-              mb: 4,
-              alignItems: "center",
-            }}
-          >
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4, alignItems: "center" }}>
             <FormControl sx={{ minWidth: 140 }}>
               <InputLabel id="category-label">קטגוריה</InputLabel>
               <Select
@@ -154,12 +200,12 @@ const CouponsDisplay = () => {
 
             <Box sx={{ width: 200 }}>
               <Typography variant="caption" gutterBottom>
-                טווח מחיר: ₪{minPrice} - ₪{maxPrice}
+                טווח מחיר: ₪{priceRangeInput[0]} - ₪{priceRangeInput[1]}
               </Typography>
               <Slider
-                getAriaLabel={() => "טווח מחיר"}
-                value={[minPrice, maxPrice]}
-                onChange={(_, newValue) => {
+                value={priceRangeInput}
+                onChange={(_, newValue) => setPriceRangeInput(newValue)}
+                onChangeCommitted={(_, newValue) => {
                   const [newMin, newMax] = newValue;
                   setMinPrice(newMin);
                   setMaxPrice(newMax);
@@ -173,8 +219,8 @@ const CouponsDisplay = () => {
             <TextField
               label="חיפוש חופשי"
               variant="outlined"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               sx={{ minWidth: 200 }}
             />
 
@@ -194,41 +240,26 @@ const CouponsDisplay = () => {
               </Select>
             </FormControl>
 
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setCategoryId(0);
-                setRegionId(0);
-                setMinPrice(0);
-                setMaxPrice(1000);
-                setSearch("");
-                setSort("date_desc");
-              }}
-            >
+            <Button variant="outlined" onClick={resetFilters}>
               איפוס סינון
             </Button>
           </Box>
 
-          {loadingCoupons ? (
-            <Box sx={{ textAlign: "center", mt: 5 }}>
-              <CircularProgress />
-            </Box>
-          ) : coupons.length === 0 ? (
+          {coupons.length === 0 && !loadingCoupons ? (
             <Typography variant="body1" sx={{ mt: 5, textAlign: "center" }}>
               לא נמצאו קופונים מתאימים.
             </Typography>
           ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                gap: 2,
-              }}
-            >
+            <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 2 }}>
               {coupons.map((coupon) => (
                 <CouponCard key={coupon.id} coupon={coupon} />
               ))}
+            </Box>
+          )}
+
+          {loadingCoupons && (
+            <Box sx={{ textAlign: "center", mt: 3 }}>
+              <CircularProgress />
             </Box>
           )}
         </>
