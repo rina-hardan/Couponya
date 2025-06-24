@@ -17,7 +17,6 @@ const ordersController = {
       await connection.beginTransaction();
 
       let totalPrice = items.reduce((sum, item) => sum + item.pricePerUnit * item.quantity, 0);
-
       const currentPoints = await ordersModel.getCustomerPoints(customerId, connection);
       let pointsUsed = 0;
       if (usePoints) {
@@ -34,6 +33,7 @@ const ordersController = {
 
       if(orderDate.getMonth()==birthDate.getMonth())
         totalPrice *= 0.9; // 10% discount if order is made in the customer's birth month
+    // להתחיל טרנזקציה
       const orderId = await ordersModel.createOrder(customerId, totalPrice, orderDate, connection);
 
       const orderItems = items.map(item => [
@@ -46,10 +46,10 @@ const ordersController = {
 
       await ordersModel.bulkAddOrderItems(orderItems, connection);
       await ordersModel.updateCustomerPoints(customerId, updatedPoints, connection);
-
+// לסיים את הטרנזקציה
     const couponIds = items.map(item => item.couponId);
-    const coupons = await couponsModel.getCouponsByIds(couponIds, connection); // תחזירי רק id ו-code
-      const couponCodesAndTitles = coupons.map(c => `${c.code} - ${c.title}`).join(", ");
+    const coupons = await couponsModel.getCouponsByIds(couponIds, connection); 
+    const couponCodesAndTitles = coupons.map(c => `${c.code} - ${c.title}`).join(", ");
 
       await connection.commit();
 

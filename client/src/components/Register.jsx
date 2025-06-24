@@ -31,10 +31,12 @@ export default function Register() {
     const form = e.target;
     const formData = new FormData(form);
 
-    if (!isCustomer && logoFile) {
-      formData.append("logo", logoFile);
-    }
-
+    // if (!isCustomer && logoFile) {
+    //   formData.append("logo", logoFile);
+    // }
+for (let [key, value] of formData.entries()) {
+  console.log(key, value);
+}
     try {
      const result = await fetchFromServer("users/register", "POST", formData);
       if (result.token) {

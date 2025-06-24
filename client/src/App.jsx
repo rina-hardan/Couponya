@@ -5,7 +5,6 @@ import CustomerHome from "../src/components/CustomerHome";
 import BusinessOwnerHome from "../src/components/BusinessOwnerHome";
 import Login from "../src/components/Login"; 
 import ProfileDetails from "../src/components/ProfileDetails";
-
 import OrderHistory from "../src/components/OrderHistory";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
