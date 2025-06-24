@@ -25,6 +25,20 @@ CREATE TABLE IF NOT EXISTS customers (
   FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+
+CREATE TABLE IF NOT EXISTS cities (
+  id INT PRIMARY KEY,
+  region_id INT NOT NULL,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS neighborhoods (
+   id INT PRIMARY KEY,
+   id_city INT NOT NULL,
+   name VARCHAR(255) UNIQUE,
+   FOREIGN KEY (id_city) REFERENCES cities(id) ON DELETE CASCADE
+);
 -- טבלת בעלי עסקים
 CREATE TABLE IF NOT EXISTS business_owners (
   business_owner_id INT PRIMARY KEY,
@@ -104,3 +118,9 @@ INSERT INTO categories (name) VALUES
 ('Restaurants and Food'),
 ('Vacations and Leisure');
 
+
+select * from regions;
+delete from regions where id=1;
+
+ALTER TABLE regions
+ADD image_url VARCHAR(255);
