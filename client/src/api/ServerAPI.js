@@ -28,6 +28,7 @@ export async function fetchFromServer(endpoint, method = "GET", body = null) {
     return response.data;
   } catch (error) {
     console.error("Axios error:", error);
+  console.log("Axios error response:", error.message);
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }

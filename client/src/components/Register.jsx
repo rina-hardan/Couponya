@@ -38,7 +38,7 @@ for (let [key, value] of formData.entries()) {
   console.log(key, value);
 }
     try {
-     const result = await fetchFromServer("users/register", "POST", formData);
+      const result = await fetchFromServer("users/register", "POST", formData);
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
@@ -75,7 +75,7 @@ for (let [key, value] of formData.entries()) {
             </Typography>
 
             <Box component="form" onSubmit={handleRegister} className="register-form">
-              <TextField fullWidth name="username" label="Username" required />
+              <TextField fullWidth name="userName" label="Username" required />
               <TextField fullWidth name="name" label="Full Name" required />
               <TextField fullWidth name="email" label="Email" type="email" required />
               <TextField fullWidth name="password" label="Password" type="password" required />
@@ -105,7 +105,7 @@ for (let [key, value] of formData.entries()) {
                   <TextField fullWidth name="business_name" label="Business Name" required />
                   <TextField fullWidth name="description" label="Description" multiline rows={3} />
                   <TextField fullWidth name="website_url" label="Website URL" />
-                  
+
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     Upload Logo
                   </Typography>

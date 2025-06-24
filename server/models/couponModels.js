@@ -38,7 +38,10 @@ const couponsModel = {
   // },
   getAllActive: async ({ categoryId, regionId, minPrice, maxPrice, search, sort, limit, offset }) => {
     let query = `
-    SELECT * FROM coupons
+    SELECT coupons.*, business_owners.logo_url, business_owners.business_name,
+    business_owners.description as bo_description, business_owners.website_url
+    FROM coupons
+    JOIN business_owners ON coupons.business_owner_id = business_owners.business_owner_id
     WHERE is_active = true 
       AND status = 'confirmed'
       AND expiry_date >= CURDATE()
@@ -67,9 +70,9 @@ const couponsModel = {
     }
 
     if (search) {
-      query += ` AND (title LIKE ? OR description LIKE ?)`;
+      query += ` AND (title LIKE ? OR  business_owners.description  LIKE ? OR business_name LIKE ? OR address LIKE ? OR coupons.description LIKE ?)`;
       const searchTerm = `%${search}%`;
-      params.push(searchTerm, searchTerm);
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
     const [sortField = "expiry_date", sortDirection = "asc"] = (sort || "expiry_date_asc").split("_");

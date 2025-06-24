@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
 import {
   IconButton,
   Menu,
@@ -90,7 +91,7 @@ export default function CustomerHome() {
         </header>
 
         <main className="main-content">
-          <CategoriesList />
+           <Outlet />
         </main>
       </div>
     </div>

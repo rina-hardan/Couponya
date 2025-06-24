@@ -68,7 +68,7 @@ const usersController = {
     }
       const { success, ...cleanData } = returnedData;
      const token = jwt.sign({ userId: userId, role: role ,email:email}, secretKey, { expiresIn: '1h' });
-    res.status(201).json({ message: "User added successfully", userId, ...cleanData ,token});
+    res.status(201).json({ message: "User added successfully",  user: { userId, role, email, ...cleanData } ,token});
 
   } catch (err) {
     console.error("Error in register:", err);
