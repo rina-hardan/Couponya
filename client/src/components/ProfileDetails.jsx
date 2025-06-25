@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 import "../css/ProfileDetails.css";
 import { fetchFromServer } from "../api/ServerAPI";
-
+import { useNavigate } from "react-router-dom";
 const ProfileDetails = () => {
   const user = JSON.parse(localStorage.getItem("currentUser")) || {};
   const [formData, setFormData] = useState({});
-
+const navigate = useNavigate();
   const isCustomer = user.role === "customer";
   const isBusinessOwner = user.role === "business_owner";
 
@@ -29,10 +29,11 @@ const ProfileDetails = () => {
     try {
       const result = await fetchFromServer("/users/update", "PUT", formData);
         alert("Updated successfully");
-        if(result.user.role === "customer") {
+        console.log("Update result:", result);
+        if(user.role === "customer") {
           navigate("/CustomerHome");
         }
-        else if(result.user.role === "business_owner") {
+        else if(user.role === "business_owner") {
           navigate("/BusinessOwnerHome");
       } else {
         alert(result.error || "Update failed");

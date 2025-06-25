@@ -13,12 +13,10 @@ export default function CategoriesList() {
       try {
         const result = await fetchFromServer("categories/", "GET");
         setCategories(result.categories);
-        console.log("Categories fetched successfully:", result.categories);
       } catch (error) {
         console.error("Failed to fetch categories", error);
       }
     };
-
     fetchCategories();
   }, []);
 

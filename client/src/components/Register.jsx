@@ -112,6 +112,7 @@ for (let [key, value] of formData.entries()) {
                   <input
                     type="file"
                     name="logo"
+                    id="logo"
                     accept="image/*"
                     onChange={(e) => setLogoFile(e.target.files[0])}
                     required

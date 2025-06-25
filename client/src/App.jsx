@@ -9,6 +9,7 @@ import CouponsDisplay from "./components/CouponsDisplay";
 import Coupon from "./components/Coupon";
 import CategoriesList from "./components/CategoriesList";
 import OrderHistory from "../src/components/OrderHistory";
+import Checkout from "../src/components/Checkout";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -30,7 +31,7 @@ function App() {
         <Route path="/coupons" element={<CouponsDisplay />} />
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/profile" element={<ProfileDetails />} />
-
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </Router>
   );

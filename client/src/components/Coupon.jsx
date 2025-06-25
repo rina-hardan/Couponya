@@ -15,7 +15,7 @@ import {
   Inventory,
   LocationOn
 } from "@mui/icons-material";
-
+import { fetchFromServer } from "../api/ServerAPI"; // פונקציה לשליחת בקשות לשרת
 const Coupon = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,6 +28,14 @@ const Coupon = () => {
 
   if (!coupon) return null;
 
+
+  const handleAddToCart = async (coupon) => {
+    try {
+      const response = await fetchFromServer("cart/add", "POST", {
+        couponId: coupon.id, quantity: coupon.quantity, title: coupon.title, pricePerUnit: coupon.discounted_price
+      })
+    } catch (error) { console.error("Error adding to cart:", error); alert("Failed to add coupon to cart. Please try again later."); }
+  };;
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Box textAlign="center" mb={4}>
@@ -47,18 +55,18 @@ const Coupon = () => {
         <Typography variant="subtitle1" color="text.secondary">
           {coupon.business_name}
         </Typography>
-       <Typography
-  variant="body2"
-  color="primary"
-  mt={1}
-  component="a"
-  href={coupon.website_url.startsWith("http") ? coupon.website_url : `https://${coupon.website_url}`}
-  target="_blank"
-  rel="noopener noreferrer"
-  sx={{ textDecoration: "underline" }}
->
-  {coupon.website_url}
-</Typography>
+        <Typography
+          variant="body2"
+          color="primary"
+          mt={1}
+          component="a"
+          href={coupon.website_url.startsWith("http") ? coupon.website_url : `https://${coupon.website_url}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ textDecoration: "underline" }}
+        >
+          {coupon.website_url}
+        </Typography>
 
       </Box>
 
@@ -134,7 +142,7 @@ const Coupon = () => {
         </Grid>
 
         <Box textAlign="center" mt={5}>
-          <Button variant="contained" color="primary" size="large">
+          <Button variant="contained" color="primary" size="large" onClick={() => handleAddToCart(coupon)}>
             הוסף לסל
           </Button>
         </Box>
