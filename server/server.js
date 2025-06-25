@@ -9,6 +9,7 @@ import couponsRouter from "../server/routers/couponRoute.js"
 import orderRouter from "../server/routers/orderRoute.js"
 import categoriesRouter from "../server/routers/categoriesRoute.js"
 import regionsRouter from "../server/routers/regionsRoute.js"
+import cartRouter from "../server/routers/cartRouter.js"
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT||5000;
@@ -30,7 +31,7 @@ app.use("/coupons",couponsRouter);
 app.use("/order",orderRouter); 
 app.use("/categories",categoriesRouter); 
 app.use("/regions",regionsRouter);
-
+app.use("/cart",cartRouter);
 
 app.get('/', (req, res) => {
   res.send('Server is running!');

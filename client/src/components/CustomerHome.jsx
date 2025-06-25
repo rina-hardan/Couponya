@@ -1,23 +1,36 @@
-import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import {
   IconButton,
   Menu,
   MenuItem,
   Typography,
   Box,
-  Divider
+  Divider,
+  Badge,
+  Popover,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  TextField,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useNavigate } from "react-router-dom";
 import logo from "../pic/logo.png";
 import "../css/CustomerHome.css";
+import { fetchFromServer } from "../api/ServerAPI";
+import CartItem from "../components/CartItem"; // רכיב המייצג פריט בסל הקניות
 
 export default function CustomerHome() {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [cartItems, setCartItems] = useState([]); // מצב לשמירת המוצרים בסל הקניות
+  const [cartPopoverOpen, setCartPopoverOpen] = useState(false); // מצב לפתיחה וסגירה של חלונית סל הקניות
   const navigate = useNavigate();
+  const [usePoints, setUsePoints] = useState(false);
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const open = Boolean(anchorEl);
 
@@ -32,6 +45,49 @@ export default function CustomerHome() {
   const goToHistory = () => {
     handleClose();
     navigate("/order-history");
+  };
+
+  // פונקציה לשליפת המוצרים בסל הקניות
+  const loadCartItems = async () => {
+    try {
+      const data = await fetchFromServer("cart/");
+      setCartItems(data.cartItems); // עדכון מצב עם המוצרים שהגיעו מהשרת
+    } catch (error) {
+      console.error("Failed to load cart items", error);
+    }
+  };
+
+  const handleCartClick = (event) => {
+    loadCartItems(); // נטען את המוצרים בסל כשנלחץ על כפתור סל הקניות
+    setCartPopoverOpen(true); // נפתח את ה-popover
+  };
+
+  const handleCartPopoverClose = () => {
+    setCartPopoverOpen(false); // סוגרים את ה-popover של סל הקניות
+  };
+
+  const handleRemoveItem = async (itemId) => {
+    try {
+      // שליחה לשרת למחוק את המוצר
+      await fetchFromServer(`cart/remove`, "DELETE", { couponId: itemId });
+      setCartItems(prevItems => prevItems.filter(item => item.coupon_id !== itemId));
+    } catch (error) {
+      console.error("Failed to remove item", error);
+    }
+  };
+
+  const handleUpdateQuantity = async (itemId, newQuantity) => {
+    try {
+      // שליחה לשרת לעדכן את הכמות
+      await fetchFromServer(`cart/updateQuantity`, "PUT", { couponId: itemId, quantity: parseInt(newQuantity) });
+      setCartItems(prevItems =>
+        prevItems.map(item =>
+          item.coupon_id === itemId ? { ...item, quantity: newQuantity } : item
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update quantity", error);
+    }
   };
 
   return (
@@ -90,7 +146,73 @@ export default function CustomerHome() {
         </header>
 
         <main className="main-content">
-           <Outlet />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton onClick={handleCartClick}>
+              <Badge badgeContent={cartItems.length} color="primary">
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+          </Box>
+
+          {/* Popover לסל הקניות */}
+          <Popover
+            open={cartPopoverOpen}
+            anchorEl={anchorEl}
+            onClose={handleCartPopoverClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+
+            <Typography sx={{ p: 2 }}>Your Cart</Typography>
+            {cartItems.length > 0 ? (
+              <List>
+                {cartItems.map((item, index) => (
+                  <CartItem
+                    key={item.id}
+                    item={item}
+                    onRemove={() => { handleRemoveItem(item.id) }}
+                    onUpdate={handleUpdateQuantity}
+                  />
+
+                ))}
+              </List>
+
+            ) : (
+              <Typography sx={{ p: 2 }}>No items in your cart</Typography>
+            )}
+            <Typography variant="body2" sx={{ marginTop: 2 }}>
+              You have {currentUser.points} points available.
+            </Typography>
+            <Button
+              onClick={() => setUsePoints(prev => !prev)}
+              variant="outlined"
+              sx={{ marginTop: 1 }}
+            >
+              {usePoints ? "Don't Use Points" : "Use Points"}
+            </Button>
+
+            <Button
+              onClick={() => navigate("/checkout", {
+                state: {
+                  cartItems: cartItems,  // פרטי המוצרים בסל
+                  userPoints: currentUser.points,  // נקודות הלקוח
+                  customerBirthDate: currentUser.birth_date  // תאריך לידה
+                }
+              })}
+              variant="contained"
+              sx={{ margin: 2 }}
+            >
+              Checkout
+            </Button>
+          </Popover>
+
+          <Outlet />
         </main>
       </div>
     </div>

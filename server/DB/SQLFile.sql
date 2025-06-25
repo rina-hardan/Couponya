@@ -104,6 +104,25 @@ CREATE TABLE IF NOT EXISTS order_items (
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
   FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS cart_item (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  coupon_id INT NOT NULL,
+  quantity INT NOT NULL,
+  price_per_unit DECIMAL(10, 2),
+  title VARCHAR(100), -- שמור את המחיר המוזל ישירות כאן
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE
+);
+
+-- INSERT INTO regions (name) VALUES
+-- ('North'),
+-- ('South'),
+-- ('Center'),
+-- ('Jerusalem'),
+-- ('Haifa'),
+-- ('Sharon');
 -- INSERT INTO regions (name) VALUES
 -- ('North'),
 -- ('South'),
@@ -117,6 +136,9 @@ CREATE TABLE IF NOT EXISTS order_items (
 -- ('Shopping'),
 -- ('Restaurants and Food'),
 -- ('Vacations and Leisure');
+
+
+select * from regions;
 
 
 

@@ -53,7 +53,7 @@ const ordersController = {
 
       await connection.commit();
 
-      const emailText = `Thank you for your order! Your coupon codes are:\n${couponCodes}`;
+      const emailText = `Thank you for your order! Your coupon codes are:\n${couponCodesAndTitles}`;
       await sendMail(customerEmail, "Your Coupons", emailText);
 
       res.status(201).json({
