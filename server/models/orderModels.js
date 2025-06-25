@@ -67,8 +67,8 @@ getOrdersByCustomerId: async ({ customerId, sort, limit, offset }) => {
     query += ` ORDER BY o.order_date DESC`;
   }
 
-  query += ` LIMIT ? OFFSET ?`;
-  params.push(parseInt(limit), parseInt(offset));
+  // query += ` LIMIT ? OFFSET ?`;
+  // params.push(parseInt(limit), parseInt(offset));
 
   const [rows] = await DB.query(query, params);
 

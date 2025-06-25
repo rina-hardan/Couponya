@@ -19,7 +19,6 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useNavigate } from "react-router-dom";
 import logo from "../pic/logo.png";
 import "../css/CustomerHome.css";
 import { fetchFromServer } from "../api/ServerAPI";

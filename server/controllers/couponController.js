@@ -210,7 +210,14 @@ const couponsController = {
       console.error("Error in getRecommended:", error);
       res.status(500).json({ error: "Internal server error" });
     }
+  },updateCouponQuantities: async (items, connection) => {
+  for (const item of items) {
+    await connection.query(
+      `UPDATE coupons SET quantity = quantity - ? WHERE id = ? AND quantity >= ?`,
+      [item.quantity, item.couponId, item.quantity]
+    );
   }
+}
 };
 
 export default couponsController;
