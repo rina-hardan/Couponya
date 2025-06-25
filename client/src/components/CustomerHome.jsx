@@ -19,7 +19,6 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useNavigate } from "react-router-dom";
 import logo from "../pic/logo.png";
 import "../css/CustomerHome.css";
 import { fetchFromServer } from "../api/ServerAPI";
@@ -47,28 +46,26 @@ export default function CustomerHome() {
     navigate("/order-history");
   };
 
-  // פונקציה לשליפת המוצרים בסל הקניות
   const loadCartItems = async () => {
     try {
       const data = await fetchFromServer("cart/");
-      setCartItems(data.cartItems); // עדכון מצב עם המוצרים שהגיעו מהשרת
+      setCartItems(data.cartItems);
     } catch (error) {
       console.error("Failed to load cart items", error);
     }
   };
 
   const handleCartClick = (event) => {
-    loadCartItems(); // נטען את המוצרים בסל כשנלחץ על כפתור סל הקניות
-    setCartPopoverOpen(true); // נפתח את ה-popover
+    loadCartItems();
+    setCartPopoverOpen(true); 
   };
 
   const handleCartPopoverClose = () => {
-    setCartPopoverOpen(false); // סוגרים את ה-popover של סל הקניות
+    setCartPopoverOpen(false); 
   };
 
   const handleRemoveItem = async (itemId) => {
     try {
-      // שליחה לשרת למחוק את המוצר
       await fetchFromServer(`cart/remove`, "DELETE", { couponId: itemId });
       setCartItems(prevItems => prevItems.filter(item => item.coupon_id !== itemId));
     } catch (error) {
@@ -78,7 +75,6 @@ export default function CustomerHome() {
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     try {
-      // שליחה לשרת לעדכן את הכמות
       await fetchFromServer(`cart/updateQuantity`, "PUT", { couponId: itemId, quantity: parseInt(newQuantity) });
       setCartItems(prevItems =>
         prevItems.map(item =>

@@ -4,7 +4,9 @@ import usersModel from "../models/usersModels.js";
 const couponsController = {
   createCoupon: async (req, res) => {
     try {
+
       const couponData = req.body;
+      couponData.business_owner_id = req.userId; // Assuming userId is the business owner's ID
       const newCoupon = await couponsModel.create(couponData);
       res.status(201).json(newCoupon);
     } catch (error) {

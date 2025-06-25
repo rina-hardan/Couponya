@@ -11,6 +11,7 @@ import CategoriesList from "./components/CategoriesList";
 import OrderHistory from "../src/components/OrderHistory";
 import Checkout from "../src/components/Checkout";
 import AdminHome from "./components/AdminHome";
+import BusinessCouponsManager from "./components/BusinessCouponsManager";
 import ManageCategories from "./components/ManageCategories";
 import UnconfirmedCoupons from "./components/UnconfirmedCoupons";
 import CouponForm from "./components/CouponForm";
@@ -35,6 +36,7 @@ function App() {
           <Route path="manage-categories" element={<ManageCategories />} />
         </Route>
         <Route path="/BusinessOwnerHome" element={<BusinessOwnerHome />} >
+         <Route index element={<BusinessCouponsManager />} />
           <Route path="coupon-form" element={<CouponForm />} />
         </Route>
         <Route path="/coupons" element={<CouponsDisplay />} />

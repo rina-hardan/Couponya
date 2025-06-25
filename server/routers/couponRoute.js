@@ -22,7 +22,6 @@ couponsRouter.put('/confirmCoupon/:couponId',verifyToken,isAdmin, couponsControl
 couponsRouter.put('/:id',verifyToken, couponsController.updateCoupon);
 couponsRouter.delete('/:id',verifyToken, couponsController.deleteCoupon);
 
-couponsRouter.post('/:id/purchases',verifyToken, couponsController.getPurchasesCount);
 couponsRouter.get('/recommendedCoupons',verifyToken, couponsController.getRecommendedCoupons);
 
 export default couponsRouter;
