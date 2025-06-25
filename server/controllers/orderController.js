@@ -52,7 +52,8 @@ const ordersController = {
     const couponCodesAndTitles = coupons.map(c => `${c.code} - ${c.title}`).join(", ");
 
       await connection.commit();
-
+      
+      await couponsModel.updateCouponQuantities(items); 
       const emailText = `Thank you for your order! Your coupon codes are:\n${couponCodesAndTitles}`;
       await sendMail(customerEmail, "Your Coupons", emailText);
 
@@ -62,7 +63,8 @@ const ordersController = {
         totalPrice,
         pointsUsed,
         pointsEarned,
-        updatedPoints
+        updatedPoints,
+        orderItems
       });
 
     } catch (error) {
@@ -85,7 +87,6 @@ const ordersController = {
       return res.status(400).json({ error: "Missing customer ID" });
     }
  const {
-      status,
       sort = "created_at_desc", 
       page = 1,
       limit = 10

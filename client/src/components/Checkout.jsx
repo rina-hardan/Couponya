@@ -43,7 +43,7 @@ const items = cartItems.map(item => ({
     try {
       // שליחת פרטי ההזמנה לשרת
       const response = await fetchFromServer("order/create", "POST", orderDetails);
-      
+      console.log("Order created successfully:", response);
       alert("Payment successful! Your order has been created.");
       navigate("/CustomerHome"); // חזרה לעמוד הבית
     } catch (error) {
