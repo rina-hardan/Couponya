@@ -34,6 +34,9 @@ export default function Login() {
           navigate("/CustomerHome");
         } else if (result.user.role === "business_owner") 
           {navigate("/BusinessOwnerHome"); }
+          else if (result.user.role === "admin") {
+            navigate("/AdminHome");
+          }
       }
     } catch (error) {
       alert(error.message || "Login failed. Please try again.");

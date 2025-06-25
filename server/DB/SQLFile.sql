@@ -104,23 +104,19 @@ CREATE TABLE IF NOT EXISTS order_items (
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
   FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE
 );
-INSERT INTO regions (name) VALUES
-('North'),
-('South'),
-('Center'),
-('Jerusalem'),
-('Haifa'),
-('Sharon');
+-- INSERT INTO regions (name) VALUES
+-- ('North'),
+-- ('South'),
+-- ('Center'),
+-- ('Jerusalem'),
+-- ('Haifa'),
+-- ('Sharon');
 
-INSERT INTO categories (name) VALUES
-('Culture and Leisure'),
-('Shopping'),
-('Restaurants and Food'),
-('Vacations and Leisure');
+-- INSERT INTO categories (name) VALUES
+-- ('Culture and Leisure'),
+-- ('Shopping'),
+-- ('Restaurants and Food'),
+-- ('Vacations and Leisure');
 
 
-select * from regions;
-delete from regions where id=1;
 
-ALTER TABLE regions
-ADD image_url VARCHAR(255);

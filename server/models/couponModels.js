@@ -143,42 +143,80 @@ const couponsModel = {
     const [results] = await DB.query(sql, [couponId]);
     return results[0].purchasedCount || 0;
   },
+//   getCouponsByBusinessOwnerId: async ({ businessOwnerId, isActive, status, sortBy = 'expiry_date', sortOrder = 'ASC', limit = 20, offset = 0 }) => {
+//   let sql = `SELECT * FROM coupons WHERE business_owner_id = ?`;
+//   const params = [businessOwnerId];
 
-  // getCouponsByBusinessOwnerId: async (businessOwnerId) => {
-  //   const sql = `
-  //     SELECT * FROM coupons
-  //     WHERE business_owner_id = ?
-  //   `;
-  //   const [results] = await DB.query(sql, [businessOwnerId]);
-  //   return results;
-  // },
-  getCouponsByBusinessOwnerId: async ({ businessOwnerId, isActive, status, sortBy = 'expiry_date', sortOrder = 'ASC', limit = 20, offset = 0 }) => {
-  let sql = `SELECT * FROM coupons WHERE business_owner_id = ?`;
+//   if (typeof isActive === 'boolean') {
+//     sql += ` AND is_active = ?`;
+//     params.push(isActive);
+//   }
+
+//   if (status) {
+//     sql += ` AND status = ?`;
+//     params.push(status);
+//   }
+
+//   const allowedSortFields = ['expiry_date', 'discounted_price', 'title', 'quantity'];
+//   if (!allowedSortFields.includes(sortBy)) {
+//     sortBy = 'expiry_date';
+//   }
+//   sortOrder = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+//   sql += ` ORDER BY ${sortBy} ${sortOrder}`;
+
+//   sql += ` LIMIT ? OFFSET ?`;
+//   params.push(Number(limit), Number(offset));
+
+//   const [results] = await DB.query(sql, params);
+//   return results;
+// }
+ getCouponsByBusinessOwnerId : async ({
+  businessOwnerId,
+  isActive,
+  status,
+  sortBy = 'expiry_date',
+  sortOrder = 'ASC',
+  limit = 20,
+  offset = 0
+}) => {
+  let sql = `
+    SELECT 
+      c.*,
+      IFNULL(SUM(oi.quantity), 0) AS purchasedCount
+    FROM coupons c
+    LEFT JOIN order_items oi ON c.id = oi.coupon_id
+    WHERE c.business_owner_id = ?
+  `;
   const params = [businessOwnerId];
 
   if (typeof isActive === 'boolean') {
-    sql += ` AND is_active = ?`;
+    sql += ` AND c.is_active = ?`;
     params.push(isActive);
   }
 
   if (status) {
-    sql += ` AND status = ?`;
+    sql += ` AND c.status = ?`;
     params.push(status);
   }
+
+  sql += `
+    GROUP BY c.id
+  `;
 
   const allowedSortFields = ['expiry_date', 'discounted_price', 'title', 'quantity'];
   if (!allowedSortFields.includes(sortBy)) {
     sortBy = 'expiry_date';
   }
   sortOrder = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-  sql += ` ORDER BY ${sortBy} ${sortOrder}`;
 
+  sql += ` ORDER BY c.${sortBy} ${sortOrder}`;
   sql += ` LIMIT ? OFFSET ?`;
   params.push(Number(limit), Number(offset));
 
   const [results] = await DB.query(sql, params);
   return results;
 }
+
 ,
   confirmCoupon: async (couponId) => {
     const sql = `
@@ -189,7 +227,11 @@ const couponsModel = {
     const [result] = await DB.query(sql, [couponId]);
     return result.affectedRows > 0;
   },
-
+async getUnConfirmedCoupons() {
+    const sql = `SELECT * FROM coupons WHERE status = 'pending'`;
+    const [results] = await DB.query(sql);
+    return results;
+  },
   async getCouponsByAge(minAge, maxAge) {
     const [rows] = await DB.query(`
       SELECT c.*, COUNT(oi.id) AS popularity

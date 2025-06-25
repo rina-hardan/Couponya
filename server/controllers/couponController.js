@@ -11,15 +11,6 @@ const couponsController = {
       res.status(500).json({ message: "Error creating coupon", error: error.message });
     }
   },
-
-  // getAllActiveCoupons: async (req, res) => {
-  //   try {
-  //     const coupons = await couponsModel.getAllActive();
-  //     res.status(200).json(coupons);
-  //   } catch (error) {
-  //     res.status(500).json({ message: "Error retrieving active coupons", error: error.message });
-  //   }
-  // },
   getAllActiveCoupons: async (req, res) => {
     try {
       const {
@@ -70,7 +61,46 @@ const couponsController = {
   updateCoupon: async (req, res) => {
     try {
       const { id } = req.params;
-      const updated = await couponsModel.update(id, req.body);
+      const incomingData = req.body;
+      const allowedFields = [
+        "category_id",
+        "region_id",
+        "title",
+        "description",
+        "original_price",
+        "discounted_price",
+        "address",
+        "quantity",
+        "expiry_date",
+        "is_active"
+      ];
+
+      const requiredFields = ["title", "discounted_price", "quantity","original_price",
+        "expiry_date", "category_id", "region_id"];
+
+      for (const field of requiredFields) {
+        if (
+          incomingData.hasOwnProperty(field) &&
+          (incomingData[field] === "" || incomingData[field] === null)
+        ) {
+          return res.status(400).json({ message: `Field '${field}' cannot be empty` });
+        }
+      }
+
+      const filteredData = {};
+      for (const [key, value] of Object.entries(incomingData)) {
+        if (
+          allowedFields.includes(key) &&
+          value !== undefined &&
+          value !== null &&
+          value !== ""
+        ) {
+          filteredData[key] = value;
+        }
+
+
+      }
+      const updated = await couponsModel.update(id, filteredData);
       if (updated) {
         res.status(200).json({ message: "Coupon updated successfully" });
       } else {
@@ -95,28 +125,9 @@ const couponsController = {
     }
   },
 
-  getPurchasesCount: async (req, res) => {
-    try {
-      const { couponId } = req.params;
-      const count = await couponsModel.getPurchasesCount(couponId);
-      res.status(200).json({ couponId, purchasedCount: count });
-    } catch (error) {
-      res.status(500).json({ message: "Error retrieving purchases count", error: error.message });
-    }
-  },
-
-  // getCouponsByBusinessOwnerId: async (req, res) => {
-  //   try {
-  //     const { businessOwnerId } = req.params;
-  //     const coupons = await couponsModel.getCouponsByBusinessOwnerId(businessOwnerId);
-  //     res.status(200).json(coupons);
-  //   } catch (error) {
-  //     res.status(500).json({ message: "Error retrieving coupons for business owner", error: error.message });
-  //   }
-  // },
   getCouponsByBusinessOwnerId: async (req, res) => {
     try {
-      const { businessOwnerId } = req.params;
+      const businessOwnerId = req.userId;
 
       const { isActive, status, sortBy, sortOrder, page = 1, limit = 20 } = req.query;
 
@@ -140,7 +151,7 @@ const couponsController = {
   ,
   confirmCoupon: async (req, res) => {
     try {
-      const  {couponId}  = req.params;
+      const { couponId } = req.params;
       const confirmed = await couponsModel.confirmCoupon(couponId);
       if (confirmed) {
         res.status(200).json({ message: "Coupon confirmed successfully" });

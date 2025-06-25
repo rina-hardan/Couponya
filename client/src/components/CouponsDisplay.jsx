@@ -28,7 +28,6 @@ const CouponsDisplay = () => {
   const [categoryId, setCategoryId] = useState(location.state?.categoryId || 0);
   const [regionId, setRegionId] = useState(0);
 
-  // 👇 טווח מחיר - משתמש בערך זמני + קבוע
   const [priceRangeInput, setPriceRangeInput] = useState([0, 1000]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);

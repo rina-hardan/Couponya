@@ -10,9 +10,11 @@ couponsRouter.post('/create',verifyToken, couponsController.createCoupon);
 couponsRouter.get('/', couponsController.getAllActiveCoupons);
 
 //GetCouponOfBussinesOwner by BusinessOwnerId
-couponsRouter.get('/BusinessOwnerCoupons/:businessOwnerId', couponsController.getCouponsByBusinessOwnerId);
+couponsRouter.get('/BusinessOwnerCoupons',verifyToken, couponsController.getCouponsByBusinessOwnerId);
 
 //getCouponById
+couponsRouter.get('/unconfirmedCoupons',verifyToken,isAdmin, couponsController.getUnConfirmedCoupons);
+
 couponsRouter.get('/:id', couponsController.getCouponById);
 
 //updateCoupon
@@ -21,7 +23,6 @@ couponsRouter.put('/:id',verifyToken, couponsController.updateCoupon);
 couponsRouter.delete('/:id',verifyToken, couponsController.deleteCoupon);
 
 couponsRouter.post('/:id/purchases',verifyToken, couponsController.getPurchasesCount);
-couponsRouter.get('/unconfirmedCoupons', couponsController.getUnConfirmedCoupons);
 couponsRouter.get('/recommendedCoupons',verifyToken, couponsController.getRecommendedCoupons);
 
 export default couponsRouter;

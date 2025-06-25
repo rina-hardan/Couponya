@@ -49,6 +49,9 @@ for (let [key, value] of formData.entries()) {
         } else if (result.user.role === "business_owner") {
           navigate("/BusinessOwnerHome");
         }
+        else if (result.user.role === "admin") {
+          navigate("/AdminHome");
+        }
       } else {
         alert(result.error || "Registration failed");
       }
@@ -112,6 +115,7 @@ for (let [key, value] of formData.entries()) {
                   <input
                     type="file"
                     name="logo"
+                    id="logo"
                     accept="image/*"
                     onChange={(e) => setLogoFile(e.target.files[0])}
                     required

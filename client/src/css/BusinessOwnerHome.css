@@ -1,11 +1,14 @@
 .home-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f0f4f8, #ffffff);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #fffef5;
   padding: 20px;
 }
 
 .home-wrapper {
-  max-width: 1000px;
+  width: 100%;
   margin: auto;
 }
 

@@ -8,14 +8,18 @@ const categoriesController = {
       if (!name) {
         return res.status(400).json({ error: "Category name is required" });
       }
-       const img_url = req.file ? `/uploads/${req.file.filename}` : null;
+      const img_url = req.file ? `/uploads/${req.file.filename}` : null;
 
       const result = await categoriesModel.addCategory({ name, img_url });
       if (!result.success) {
         return res.status(500).json({ error: "Failed to add category" });
       }
+      res.status(201).json({
+        name,
+        img_url: img_url ?  img_url : null,
+        id: result.categoryId,
 
-      res.status(201).json({ message: "Category added successfully", id: result.id });
+      });
     } catch (err) {
       console.error("Error in addCategory:", err);
       res.status(500).json({ error: "Internal server error" });

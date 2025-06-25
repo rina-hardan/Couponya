@@ -5,7 +5,7 @@ const categoriesModel = {
     try {
       const sql = `INSERT INTO categories (name, img_url) VALUES (?, ?)`;
       const [result] = await DB.query(sql, [name, img_url]);
-      return { success: true, id: result.insertId };
+      return { success: true, categoryId: result.insertId };
     } catch (err) {
       console.error("Error in addCategory:", err);
       return { success: false, error: err.message };
