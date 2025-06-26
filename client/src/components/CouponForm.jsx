@@ -223,6 +223,8 @@ export default function CouponForm() {
             margin="dense"
             error={!!fieldErrors.quantity}
             helperText={fieldErrors.quantity}
+            onWheel={(e) => e.target.blur()} // ⬅ זה מבטל את גלילת העכבר על השדה
+
           />
           <TextField
             label="Expiry Date"
