@@ -1,6 +1,18 @@
 CREATE DATABASE IF NOT EXISTS couponya_db;
 USE couponya_db;
 
+
+-- טבלת אזורים
+CREATE TABLE IF NOT EXISTS regions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  img_url VARCHAR(255) 
+);
 -- טבלת משתמשים
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -23,7 +35,7 @@ CREATE TABLE IF NOT EXISTS customers (
   birth_date DATE NOT NULL,
   points DECIMAL(10,2) DEFAULT 0.0,
   FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE SET NULL
+  FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE RESTRICT
 );
 
 -- טבלת בעלי עסקים
@@ -36,17 +48,6 @@ CREATE TABLE IF NOT EXISTS business_owners (
   FOREIGN KEY (business_owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS categories (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL UNIQUE,
-  img_url VARCHAR(255) 
-);
-
--- טבלת אזורים
-CREATE TABLE IF NOT EXISTS regions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL UNIQUE
-);
 
 -- טבלת קופונים
 CREATE TABLE IF NOT EXISTS coupons (
@@ -155,7 +156,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   'SA Quzers',
 --   'Authentic Italian cuisine with a fresh modern twist.',
 --   'https://saquzers.com',
---   'server/uploads/ItalianKitchen.png'
+--   '/uploads/ItalianKitchen.png'
 -- );
 
 
@@ -176,7 +177,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   'זול ובגדול',
 --   'רשת קניות ישראלית עם מגוון רחב של מוצרים במחירים מוזלים.',
 --   'https://zolvgadol.co.il',
---   'server/uploads/ZolVgadol.png'
+--   '/uploads/ZolVgadol.png'
 -- );
 
 -- INSERT INTO users (userName, name, email, role)
@@ -196,15 +197,15 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   'Luciana',
 --   'Authentic Italian restaurant by the sea, serving handcrafted pasta and wood-fired pizza.',
 --   'https://luciana.co.il',
---   'server/uploads/Luciana.png'
+--   '/uploads/Luciana.png'
 -- );
 
 -- INSERT INTO categories (name, img_url) VALUES
--- ('Beauty', 'server/uploads/BEAUTY.png'),
--- ('Electronics', 'server/uploads/ELECTRONICS.png'),
--- ('Food and Drink', 'server/uploads/FOODANDDRINK.png'),
--- ('Home', 'server/uploads/HOME.png'),
--- ('Shopping', 'server/uploads/SHOPPING.png');
+-- ('Beauty', '/uploads/BEAUTY.png'),
+-- ('Electronics', '/uploads/ELECTRONICS.png'),
+-- ('Food and Drink', '/uploads/FOODANDDRINK.png'),
+-- ('Home', '/uploads/HOME.png'),
+-- ('Shopping', '/uploads/SHOPPING.png');
 
 -- קופון 1: SA Quzers - הנחה על ארוחה איטלקית זוגית
 -- INSERT INTO coupons (

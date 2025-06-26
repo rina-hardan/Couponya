@@ -89,32 +89,34 @@ const usersModel = {
 updateUser: async (userId, data, userType) => {
   const conn = await DB.getConnection();
 
-    try {
-      await conn.beginTransaction();
+  try {
+    await conn.beginTransaction();
 
-      const userFields = ['name'];
-      const setUser = [];
-      const userValues = [];
+    // עדכון בטבלת users
+    const userFields = ['name'];
+    const setUser = [];
+    const userValues = [];
 
-      for (const key of userFields) {
-        if (data[key] !== undefined) {
-          setUser.push(`${key} = ?`);
-          userValues.push(data[key]);
-        }
+    for (const key of userFields) {
+      if (data[key] !== undefined) {
+        setUser.push(`${key} = ?`);
+        userValues.push(data[key]);
       }
+    }
 
-      if (setUser.length > 0) {
-        const userSql = `
+    if (setUser.length > 0) {
+      const userSql = `
         UPDATE users SET ${setUser.join(', ')}
         WHERE id = ?
       `;
-        userValues.push(userId);
-        await conn.query(userSql, userValues);
-      }
+      userValues.push(userId);
+      await conn.query(userSql, userValues);
+    }
 
-      let tableName;
-      let idColumn;
-      let profileFields = [];
+    // עדכון בטבלה הרלוונטית לפי תפקיד
+    let tableName;
+    let idColumn;
+    let profileFields = [];
 
     if (userType === 'customer') {
       tableName = 'customers';
@@ -128,37 +130,61 @@ updateUser: async (userId, data, userType) => {
       throw new Error("Invalid user type");
     }
 
-      const setProfile = [];
-      const profileValues = [];
+    const setProfile = [];
+    const profileValues = [];
 
-      for (const key of profileFields) {
-        if (data[key] !== undefined) {
-          setProfile.push(`${key} = ?`);
-          profileValues.push(data[key]);
-        }
+    for (const key of profileFields) {
+      if (data[key] !== undefined) {
+        setProfile.push(`${key} = ?`);
+        profileValues.push(data[key]);
       }
+    }
 
-      if (setProfile.length > 0) {
-        const profileSql = `
+    if (setProfile.length > 0) {
+      const profileSql = `
         UPDATE ${tableName}
         SET ${setProfile.join(', ')}
         WHERE ${idColumn} = ?
       `;
-        profileValues.push(userId);
-        await conn.query(profileSql, profileValues);
-      }
-
-      await conn.commit();
-      return { success: true };
-
-    } catch (err) {
-      await conn.rollback();
-      console.error("Error in updateUser:", err);
-      return { success: false, message: err.message };
-    } finally {
-      conn.release();
+      profileValues.push(userId);
+      await conn.query(profileSql, profileValues);
     }
-  },
+
+    await conn.commit();
+
+    // שליפה מחדש של המשתמש עם JOIN לפי התפקיד
+    let fullUser;
+    if (userType === 'customer') {
+      const [rows] = await conn.query(`
+        SELECT u.id, u.userName, u.name, u.email, u.role, u.created_at,
+               c.region_id, c.birth_date, c.points
+        FROM users u
+        JOIN customers c ON u.id = c.customer_id
+        WHERE u.id = ?
+      `, [userId]);
+      fullUser = rows[0];
+    } else if (userType === 'business_owner') {
+      const [rows] = await conn.query(`
+        SELECT u.id, u.userName, u.name, u.email, u.role, u.created_at,
+               b.business_name, b.description, b.website_url, b.logo_url
+        FROM users u
+        JOIN business_owners b ON u.id = b.business_owner_id
+        WHERE u.id = ?
+      `, [userId]);
+      fullUser = rows[0];
+    }
+
+    return { success: true, user: fullUser };
+
+  } catch (err) {
+    await conn.rollback();
+    console.error("Error in updateUser:", err);
+    return { success: false, message: err.message };
+  } finally {
+    conn.release();
+  }
+}
+,
 
 updateCustomerPoints: async (userId, points) => {
   try {

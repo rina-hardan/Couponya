@@ -13,38 +13,43 @@ const couponsController = {
       res.status(500).json({ message: "Error creating coupon"+ error.message });
     }
   },
-  getAllActiveCoupons: async (req, res) => {
-    try {
-      const {
-        categoryId,
-        regionId,
-        minPrice,
-        maxPrice,
-        search,
-        sort = "expiry_date_asc",
-        page = 1,
-        limit = 10
-      } = req.query;
+ getAllActiveCoupons: async (req, res) => {
+  try {
+    let {
+      categoryId,
+      regionId,
+      minPrice,
+      maxPrice,
+      search,
+      sort = "expiry_date_asc",
+      page,
+      limit
+    } = req.query;
 
-      const offset = (page - 1) * limit;
+    // המרה לערכים מספריים עם ערכי ברירת מחדל
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 12;
+    const offset = (page - 1) * limit;
 
-      const coupons = await couponsModel.getAllActive({
-        categoryId,
-        regionId,
-        minPrice,
-        maxPrice,
-        search,
-        sort,
-        limit,
-        offset
-      });
+    // שליחת הבקשה למודל עם הפרמטרים
+    const coupons = await couponsModel.getAllActive({
+      categoryId,
+      regionId,
+      minPrice,
+      maxPrice,
+      search,
+      sort,
+      limit,
+      offset
+    });
 
-      res.status(200).json(coupons);
-    } catch (error) {
-      console.error("Error retrieving active coupons:", error);
-      res.status(500).json({ message: "Error retrieving active coupons"+error.message });
-    }
-  },
+    res.status(200).json(coupons);
+  } catch (error) {
+    console.error("Error retrieving active coupons:", error);
+    res.status(500).json({ message: "Error retrieving active coupons: " + error.message });
+  }
+}
+,
 
   getCouponById: async (req, res) => {
     try {

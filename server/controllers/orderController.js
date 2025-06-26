@@ -98,18 +98,18 @@ const ordersController = {
         return res.status(400).json({ error: "Missing customer ID" });
       }
       const {
-        sort = "created_at_desc",
+        sort = "order_date_desc",
         page = 1,
         limit = 10
       } = req.query;
 
-      // const offset = (page - 1) * limit;
+       const offset = (page - 1) * limit;
 
       const orders = await ordersModel.getOrdersByCustomerId({
         customerId,
         sort,
-        // limit: parseInt(limit),
-        // offset: parseInt(offset)
+        limit: parseInt(limit),
+        offset: parseInt(offset)
       });
 
       // const orders = await ordersModel.getOrdersByCustomerId(customerId);

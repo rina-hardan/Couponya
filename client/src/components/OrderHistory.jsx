@@ -5,28 +5,63 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Container,
+  Typography,
+  CircularProgress,
 } from "@mui/material";
 import "../css/OrderHistory.css";
-import { Alert, Container, Typography } from "@mui/material";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
-  const [errorMessage, setErrorMessage] = useState("");
   const [sort, setSort] = useState("order_date_desc");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const fetchOrders = async (selectedSort) => {
+  const limit = 5;
+
+  const fetchOrders = async (selectedSort, pageToFetch = 1) => {
+    setLoading(true);
     try {
-      const result = await fetchFromServer(`order/?sort=${selectedSort}`, "GET");
-      setOrders(result.orders || []);
-      console.log("Orders fetched successfully:", result);
+      const result = await fetchFromServer(`order/?sort=${selectedSort}&page=${pageToFetch}&limit=${limit}`);
+      const newOrders = result.orders || [];
+
+      if (pageToFetch === 1) {
+        setOrders(newOrders);
+      } else {
+        setOrders((prev) => [...prev, ...newOrders]);
+      }
+
+      setHasMore(newOrders.length === limit);
     } catch (error) {
       console.error("Failed to fetch orders", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders(sort);
+    setPage(1);
+    fetchOrders(sort, 1);
   }, [sort]);
+
+  // גלילה אוטומטית
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 150 &&
+        !loading &&
+        hasMore
+      ) {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchOrders(sort, nextPage);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading, hasMore, page, sort]);
 
   return (
     <Container className="order-history-page" maxWidth="md">
@@ -49,13 +84,13 @@ export default function OrderHistory() {
         </Select>
       </FormControl>
 
-      {orders.length === 0 ? (
- <Typography variant="body1">🙁 No orders found.</Typography>      ) : (
+      {orders.length === 0 && !loading ? (
+        <Typography variant="body1">🙁 No orders found.</Typography>
+      ) : (
         <div className="orders-list">
           {orders.map((order, index) => (
             <div className="order-card" key={index}>
               <h3>🧾 Order #{order.id}</h3>
-
               <table className="order-items-table">
                 <thead>
                   <tr>
@@ -88,6 +123,18 @@ export default function OrderHistory() {
               </p>
             </div>
           ))}
+
+          {loading && (
+            <div style={{ textAlign: "center", marginTop: "1rem" }}>
+              <CircularProgress />
+            </div>
+          )}
+
+          {!hasMore && !loading && (
+            <Typography variant="body2" sx={{ mt: 2, textAlign: "center", color: "gray" }}>
+              All orders loaded.
+            </Typography>
+          )}
         </div>
       )}
     </Container>

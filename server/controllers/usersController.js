@@ -13,10 +13,6 @@ const usersController = {
         return res.status(400).json({ message: "All fields are required" });
       }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Invalid email region_id" });
-    }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({ message: "Invalid email address" });
@@ -26,39 +22,21 @@ const usersController = {
         return res.status(400).json({ message: "Password must be at least 6 characters long" });
       }
 
-    let extraData = {};
-    if (role === "customer") {
-      const { birth_date,region_id } = req.body;
-      if (!birth_date) {
-        return res.status(400).json({ error: "Birth date  is required for customers" });
-      }
-       if ( !region_id) {
-        return res.status(400).json({ error: "region is required for customers" });
-      }
-      extraData = { birth_date, region_id };
-    } else if (role === "business_owner") {
-      const { business_name, description, website_url } = req.body;
-       const logo_url = req.file ? `/uploads/${req.file.filename}` : null;
-      if (!business_name) {
-        return res.status(400).json({ error: "Business name is required for business owners" });
-      }
-      extraData = { business_name, description, website_url, logo_url };
-    }
       let extraData = {};
       if (role === "customer") {
-        const { birth_date, address } = req.body;
-        if (!birth_date || !address) {
-          return res.status(400).json({ message: "Birth date  is required for customers" });
+        const { birth_date, region_id } = req.body;
+        if (!birth_date) {
+          return res.status(400).json({ error: "Birth date  is required for customers" });
         }
-        if (!address) {
-          return res.status(400).json({ message: "address is required for customers" });
+        if (!region_id) {
+          return res.status(400).json({ error: "region is required for customers" });
         }
-        extraData = { birth_date, address };
+        extraData = { birth_date, region_id };
       } else if (role === "business_owner") {
         const { business_name, description, website_url } = req.body;
         const logo_url = req.file ? `/uploads/${req.file.filename}` : null;
         if (!business_name) {
-          return res.status(400).json({ message: "Business name is required for business owners" });
+          return res.status(400).json({ error: "Business name is required for business owners" });
         }
         extraData = { business_name, description, website_url, logo_url };
       }
@@ -117,6 +95,7 @@ const usersController = {
 
       const user = await usersModel.getUserByEmail(email);
       if (!user) return res.status(401).json({ message: "Invalid email or password" });
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(401).json({ message: "Invalid email or password" });
 
@@ -155,12 +134,12 @@ const usersController = {
     if (req.file) {
       filteredData.logo_url = `/uploads/${req.file.filename}`;
     }
-       if ("name" in filteredData && filteredData.name.trim() === "") {
+    if ("name" in filteredData && filteredData.name.trim() === "") {
       return res.status(400).json({ message: "Name cannot be empty" });
     }
 
-    if (userType === "customer" && "address" in filteredData && filteredData.address.trim() === "") {
-      return res.status(400).json({ message: "Address is required for customers" });
+    if (userType === "customer" && "region_id" in filteredData && filteredData.region_id.trim() === "") {
+      return res.status(400).json({ message: "Region is required for customers" });
     }
 
     if (
@@ -172,23 +151,11 @@ const usersController = {
     ) {
       return res.status(400).json({ message: "Business name and description are required for business owners" });
     }
-  // try {
-//     const result = await usersModel.updateUser(userId, filteredData, userType);
-//     if (result.success) {
-//       res.status(200).json({ message: "User updated successfully." });
-//     } else {
-//       res.status(400).json({ error: result.error || "Failed to update user." });
-//     }
-//   } catch (err) {
-//     res.status(500).json({ error: "Server error", details: err.message });
-//   }
-// }
- 
-
     try {
       const result = await usersModel.updateUser(userId, filteredData, userType);
+
       if (result.success) {
-        res.status(200).json({ message: "User updated successfully." });
+        res.status(200).json({ message: "User updated successfully.", user: result.user });
       } else {
         res.status(400).json({ message: result.error || "Failed to update user." });
       }
@@ -196,11 +163,6 @@ const usersController = {
       res.status(500).json({ message: err.message });
     }
   }
-
-
-
-
-
 };
 
 export default usersController;
