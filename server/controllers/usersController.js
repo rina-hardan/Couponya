@@ -13,10 +13,6 @@ const usersController = {
         return res.status(400).json({ message: "All fields are required" });
       }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Invalid email region_id" });
-    }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({ message: "Invalid email address" });
@@ -44,25 +40,7 @@ const usersController = {
       }
       extraData = { business_name, description, website_url, logo_url };
     }
-      let extraData = {};
-      if (role === "customer") {
-        const { birth_date, address } = req.body;
-        if (!birth_date || !address) {
-          return res.status(400).json({ message: "Birth date  is required for customers" });
-        }
-        if (!address) {
-          return res.status(400).json({ message: "address is required for customers" });
-        }
-        extraData = { birth_date, address };
-      } else if (role === "business_owner") {
-        const { business_name, description, website_url } = req.body;
-        const logo_url = req.file ? `/uploads/${req.file.filename}` : null;
-        if (!business_name) {
-          return res.status(400).json({ message: "Business name is required for business owners" });
-        }
-        extraData = { business_name, description, website_url, logo_url };
-      }
-
+     
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = {

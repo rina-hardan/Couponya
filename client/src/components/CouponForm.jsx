@@ -101,28 +101,33 @@ export default function CouponForm() {
     }
 
     try {
-        const formattedDate = new Date(formData.expiry_date).toISOString().split("T")[0];
-        setFormData((prev) => ({
-          ...prev,
-          expiry_date: formattedDate,
-        }));
+      const formattedDate = new Date(formData.expiry_date).toISOString().split("T")[0];
+      setFormData((prev) => ({
+        ...prev,
+        expiry_date: formattedDate,
+      }));
 
       if (initialData.id) {
-          for(var key in formData) {
-            if (formData[key] === initialData[key]) {
-              delete formData[key];
-            }
+        const updatedFields = { ...formData };
+        for (const key in updatedFields) {
+          if (updatedFields[key] === initialData[key]) {
+            delete updatedFields[key];
           }
-          try{
-        await fetchFromServer(`/coupons/${initialData.id}`, "PUT", formData);
-          } catch (error) {
-            console.error("Error updating coupon:", error);
-            setError("Failed to update coupon.");
-            return;
-          }
+        }
+        if (Object.keys(updatedFields).length === 0) {
+          setError("No changes were made.");
+          return;
+        }
+        try {
+          await fetchFromServer(`/coupons/${initialData.id}`, "PUT", formData);
+        } catch (error) {
+          console.error("Error updating coupon:", error);
+          setError("Failed to update coupon.");
+          return;
+        }
       } else {
-        try{
-        await fetchFromServer("/coupons/create", "POST", formData);
+        try {
+          await fetchFromServer("/coupons/create", "POST", formData);
         } catch (error) {
           console.error("Error creating coupon:", error);
           setError("Failed to create coupon.");

@@ -1,9 +1,5 @@
 import DB from "../DB/DBconnection.js";
-const weights = {
-  byAge: 0.5,
-  byRegion: 0.3,
-  general: 0.2,
-};
+
 const couponsModel = {
   create: async (data) => {
     const sql = `
@@ -133,53 +129,16 @@ const couponsModel = {
     const [result] = await DB.query(sql, [id]);
     return result.affectedRows > 0;
   },
-
-  getPurchasesCount: async (couponId) => {
-    const sql = `
-      SELECT SUM(oi.quantity) AS purchasedCount
-      FROM order_items oi
-      WHERE oi.coupon_id = ?
-    `;
-    const [results] = await DB.query(sql, [couponId]);
-    return results[0].purchasedCount || 0;
-  },
-//   getCouponsByBusinessOwnerId: async ({ businessOwnerId, isActive, status, sortBy = 'expiry_date', sortOrder = 'ASC', limit = 20, offset = 0 }) => {
-//   let sql = `SELECT * FROM coupons WHERE business_owner_id = ?`;
-//   const params = [businessOwnerId];
-
-//   if (typeof isActive === 'boolean') {
-//     sql += ` AND is_active = ?`;
-//     params.push(isActive);
-//   }
-
-//   if (status) {
-//     sql += ` AND status = ?`;
-//     params.push(status);
-//   }
-
-//   const allowedSortFields = ['expiry_date', 'discounted_price', 'title', 'quantity'];
-//   if (!allowedSortFields.includes(sortBy)) {
-//     sortBy = 'expiry_date';
-//   }
-//   sortOrder = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-//   sql += ` ORDER BY ${sortBy} ${sortOrder}`;
-
-//   sql += ` LIMIT ? OFFSET ?`;
-//   params.push(Number(limit), Number(offset));
-
-//   const [results] = await DB.query(sql, params);
-//   return results;
-// }
- getCouponsByBusinessOwnerId : async ({
-  businessOwnerId,
-  isActive,
-  status,
-  sortBy = 'expiry_date',
-  sortOrder = 'ASC',
-  limit = 20,
-  offset = 0
-}) => {
-  let sql = `
+  getCouponsByBusinessOwnerId: async ({
+    businessOwnerId,
+    isActive,
+    status,
+    sortBy = 'expiry_date',
+    sortOrder = 'ASC',
+    limit = 20,
+    offset = 0
+  }) => {
+    let sql = `
     SELECT 
       c.*,
       IFNULL(SUM(oi.quantity), 0) AS purchasedCount
@@ -187,37 +146,37 @@ const couponsModel = {
     LEFT JOIN order_items oi ON c.id = oi.coupon_id
     WHERE c.business_owner_id = ?
   `;
-  const params = [businessOwnerId];
+    const params = [businessOwnerId];
 
-  if (typeof isActive === 'boolean') {
-    sql += ` AND c.is_active = ?`;
-    params.push(isActive);
-  }
+    if (typeof isActive === 'boolean') {
+      sql += ` AND c.is_active = ?`;
+      params.push(isActive);
+    }
 
-  if (status) {
-    sql += ` AND c.status = ?`;
-    params.push(status);
-  }
+    if (status) {
+      sql += ` AND c.status = ?`;
+      params.push(status);
+    }
 
-  sql += `
+    sql += `
     GROUP BY c.id
   `;
 
-  const allowedSortFields = ['expiry_date', 'discounted_price', 'title', 'quantity'];
-  if (!allowedSortFields.includes(sortBy)) {
-    sortBy = 'expiry_date';
+    const allowedSortFields = ['expiry_date', 'discounted_price', 'title', 'quantity'];
+    if (!allowedSortFields.includes(sortBy)) {
+      sortBy = 'expiry_date';
+    }
+    sortOrder = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+    sql += ` ORDER BY c.${sortBy} ${sortOrder}`;
+    sql += ` LIMIT ? OFFSET ?`;
+    params.push(Number(limit), Number(offset));
+
+    const [results] = await DB.query(sql, params);
+    return results;
   }
-  sortOrder = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
-  sql += ` ORDER BY c.${sortBy} ${sortOrder}`;
-  sql += ` LIMIT ? OFFSET ?`;
-  params.push(Number(limit), Number(offset));
-
-  const [results] = await DB.query(sql, params);
-  return results;
-}
-
-,
+  ,
   confirmCoupon: async (couponId) => {
     const sql = `
       UPDATE coupons
@@ -227,15 +186,17 @@ const couponsModel = {
     const [result] = await DB.query(sql, [couponId]);
     return result.affectedRows > 0;
   },
-async getUnConfirmedCoupons() {
+  async getUnConfirmedCoupons() {
     const sql = `SELECT * FROM coupons WHERE status = 'pending'`;
     const [results] = await DB.query(sql);
     return results;
   },
   async getCouponsByAge(minAge, maxAge) {
     const [rows] = await DB.query(`
-      SELECT c.*, COUNT(oi.id) AS popularity
+      SELECT c.*, business_owners.logo_url, business_owners.business_name,
+    business_owners.description as bo_description, business_owners.website_url, COUNT(oi.id) AS popularity
       FROM coupons c
+      JOIN business_owners ON c.business_owner_id = business_owners.business_owner_id
       JOIN order_items oi ON oi.coupon_id = c.id
       JOIN orders o ON o.id = oi.order_id
       JOIN customers cu ON cu.customer_id = o.customer_id
@@ -250,32 +211,55 @@ async getUnConfirmedCoupons() {
     return rows;
   },
 
-  async getCouponsByRegion(address) {
-    const [rows] = await DB.query(`
-      SELECT c.*, COUNT(oi.id) AS popularity
-      FROM coupons c
-      JOIN order_items oi ON oi.coupon_id = c.id
-      JOIN orders o ON o.id = oi.order_id
-      JOIN customers cu ON cu.customer_id = o.customer_id
-      WHERE cu.address = ?
-        AND c.is_active = TRUE
-        AND c.expiry_date >= CURDATE()
-        AND c.quantity > 0
-      GROUP BY c.id
-      ORDER BY popularity DESC
-      LIMIT 10
-    `, [address]);
-    return rows;
-  },
-
- updateCouponQuantities: async (items, connection) => {
-  for (const item of items) {
-    await connection.query(
-      `UPDATE coupons SET quantity = quantity - ? WHERE id = ? AND quantity >= ?`,
-      [item.quantity, item.couponId, item.quantity]
-    );
-  }
+   getCouponsByRegion:async(regionId)=> {
+  const [rows] = await DB.query(`
+    SELECT c.*, bo.logo_url, bo.business_name,
+           bo.description AS bo_description, bo.website_url,
+           COUNT(oi.id) AS popularity
+    FROM coupons c
+    JOIN business_owners bo ON c.business_owner_id = bo.business_owner_id
+    LEFT JOIN order_items oi ON oi.coupon_id = c.id
+    LEFT JOIN orders o ON o.id = oi.order_id
+    LEFT JOIN customers cu ON cu.customer_id = o.customer_id
+    WHERE c.region_id = ?
+      AND c.is_active = TRUE
+      AND c.expiry_date >= CURDATE()
+      AND c.quantity > 0
+    GROUP BY c.id
+    ORDER BY popularity DESC
+    LIMIT 20
+  `, [regionId]);
+  return rows;
 }
+,
+
+  updateCouponQuantities: async (items, connection) => {
+    for (const item of items) {
+      await connection.query(
+        `UPDATE coupons SET quantity = quantity - ? WHERE id = ? AND quantity >= ?`,
+        [item.quantity, item.couponId, item.quantity]
+      );
+    }
+  }
+  ,
+   getAllActiveAndPopularity: async () => {
+  const [rows] = await DB.query(`
+    SELECT c.*, business_owners.logo_url, business_owners.business_name,
+      business_owners.description as bo_description, business_owners.website_url,
+      COUNT(oi.id) AS popularity
+    FROM coupons c
+    JOIN business_owners ON c.business_owner_id = business_owners.business_owner_id
+    LEFT JOIN order_items oi ON oi.coupon_id = c.id
+    WHERE c.is_active = TRUE
+      AND c.expiry_date >= CURDATE()
+      AND c.quantity > 0
+    GROUP BY c.id
+    ORDER BY popularity DESC
+    LIMIT 20
+  `);
+  return rows;
+}
+
 
 
 };

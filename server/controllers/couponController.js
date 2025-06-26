@@ -1,5 +1,6 @@
 import couponsModel from "../models/couponModels.js";
 import usersModel from "../models/usersModels.js";
+import { calculateAge, mergeAndRankCoupons } from "../utils/helpers.js";
 
 const couponsController = {
   createCoupon: async (req, res) => {
@@ -173,36 +174,22 @@ const couponsController = {
     }
   },
   getRecommendedCoupons: async (req, res) => {
-    const userId = req.userId;
-    const email = req.userEmail;
+    const email = req.email;
 
-    try {
-      const user = await usersModel.getUserByEmail(email);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      const birth_date = user.birth_date;
-      const address = user.address;
+      const {birth_date,region_id} = req.body;
 
       if (!birth_date) {
         return res.status(400).json({ error: "Birth date is missing" });
       }
 
+    try {
+    
       const age = calculateAge(birth_date);
 
-      // if (!address || address.trim() === "") {
-      //   return res.status(400).json({ error: "Address is missing or invalid" });
-      // }
-
-      // const city = extractCityFromAddress(address);
-      // if (!city) {
-      //   return res.status(400).json({ error: "Could not determine city from address" });
-      // }
 
       const byAge = await couponsModel.getCouponsByAge(age - 5, age + 5);
-      const byRegion = await couponsModel.getCouponsByRegion(city);
-      const general = await couponsModel.getAllActive();
+      const byRegion = await couponsModel.getCouponsByRegion(region_id);
+      const general = await couponsModel.getAllActiveAndPopularity();
 
       const recommended = mergeAndRankCoupons(byAge, byRegion, general);
 
