@@ -4,8 +4,9 @@ import { fetchFromServer } from "../api/ServerAPI";
 
 
 export default function CategoriesList() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -19,14 +20,15 @@ export default function CategoriesList() {
     fetchCategories();
   }, []);
 
- const navigateToCouponsDisplay = (categoryId) => {
-    navigate(`/CustomerHome/coupons`,{state: { categoryId }});
+  const navigateToCouponsDisplay = (categoryId) => {
+    navigate(`/CustomerHome/coupons`, { state: { categoryId } });
   };
   return (
     <div className="categories-container">
       {categories.map((cat) => (
-        <div className="category-card" key={cat.id} onClick={() =>navigateToCouponsDisplay(cat.id)}>
+        <div className="category-card" key={cat.id} onClick={() => navigateToCouponsDisplay(cat.id)}>
           <img
+            src={`${BASE_URL}${cat.img_url}`}
             alt={cat.name}
             className="category-image"
           />

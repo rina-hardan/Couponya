@@ -103,13 +103,13 @@ const ordersController = {
         limit = 10
       } = req.query;
 
-      const offset = (page - 1) * limit;
+      // const offset = (page - 1) * limit;
 
       const orders = await ordersModel.getOrdersByCustomerId({
         customerId,
         sort,
-        limit: parseInt(limit),
-        offset: parseInt(offset)
+        // limit: parseInt(limit),
+        // offset: parseInt(offset)
       });
 
       // const orders = await ordersModel.getOrdersByCustomerId(customerId);

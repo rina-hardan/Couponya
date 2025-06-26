@@ -87,6 +87,12 @@ export default function CustomerHome() {
     }
   };
 
+  const handleLogout = () => {
+     handleClose();
+     localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <div className="home-page">
       <div className="home-wrapper">
@@ -196,7 +202,7 @@ export default function CustomerHome() {
                 <Typography>Order History</Typography>
               </MenuItem>
               <Divider />
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handleLogout}>
                 <LogoutIcon sx={{ mr: 1 }} />
                 <Typography>Logout</Typography>
               </MenuItem>

@@ -37,7 +37,7 @@ const ordersModel = {
 //   );
 //   return orders;
 // }
-getOrdersByCustomerId: async ({ customerId, sort, limit, offset }) => {
+getOrdersByCustomerId: async ({ customerId, sort }) => {
   let query = `
     SELECT o.id as order_id, o.total_price, o.order_date,
            oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price,
@@ -50,30 +50,28 @@ getOrdersByCustomerId: async ({ customerId, sort, limit, offset }) => {
 
   const params = [customerId];
 
-  let sortDirection;
-  let sortField;
-  const underscoreIndex = sort?.lastIndexOf("_");
+  let sortField = "order_date";
+  let sortDirection = "DESC";
+
+  const underscoreIndex = sort.lastIndexOf("_");
   if (underscoreIndex !== -1) {
-    sortField = sort.slice(0, underscoreIndex);
-    sortDirection = sort.slice(underscoreIndex + 1);
+    const field = sort.slice(0, underscoreIndex);
+    const dir = sort.slice(underscoreIndex + 1);
+
+    const validSortFields = ["order_date", "total_price"];
+    const validDirections = ["asc", "desc"];
+
+    if (validSortFields.includes(field) && validDirections.includes(dir.toLowerCase())) {
+      sortField = field;
+      sortDirection = dir.toUpperCase();
+    }
   }
 
-  const validSortFields = ["order_date", "total_price"];
-  const validDirections = ["asc", "desc"];
-
-  if (validSortFields.includes(sortField) && validDirections.includes(sortDirection)) {
-    query += ` ORDER BY o.${sortField} ${sortDirection.toUpperCase()}`;
-  } else {
-    query += ` ORDER BY o.order_date DESC`;
-  }
-
-  // query += ` LIMIT ? OFFSET ?`;
-  // params.push(parseInt(limit), parseInt(offset));
+  query += ` ORDER BY o.${sortField} ${sortDirection}`;
 
   const [rows] = await DB.query(query, params);
 
   const ordersMap = {};
-
   for (const row of rows) {
     if (!ordersMap[row.order_id]) {
       ordersMap[row.order_id] = {
@@ -94,7 +92,6 @@ getOrdersByCustomerId: async ({ customerId, sort, limit, offset }) => {
 
   return Object.values(ordersMap);
 }
-
 
 };
 

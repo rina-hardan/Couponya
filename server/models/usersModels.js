@@ -63,31 +63,31 @@ const usersModel = {
   }
   ,
   registerBusinessOwner: async ({ userId, business_name, description, website_url, logo_url }) => {
-    try {
-      const [result] = await DB.query(
-        "INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url) VALUES (?, ?, ?, ?, ?)",
-        [userId, business_name, description, website_url, logo_url]
-      );
-      return { success: true };
-    } catch (err) {
-      console.error("Error in registerBusinessOwner:", err);
-      return { success: false, error: err };
-    }
-  },
-  registerCustomer: async ({ userId, birth_date, address }) => {
-    try {
-      const [result] = await DB.query(
-        "INSERT INTO customers (customer_id, birth_date,address) VALUES (?, ?,?)",
-        [userId, birth_date, address]
-      );
-      return { success: true, points: 0 };
-    } catch (err) {
-      console.error("Error in registerCustomer:", err);
-      return { success: false, error: err };
-    }
-  },
-  updateUser: async (userId, data, userType) => {
-    const conn = await DB.getConnection();
+  try {
+    const [result] = await DB.query(
+      "INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url) VALUES (?, ?, ?, ?, ?)",
+      [userId, business_name, description, website_url, logo_url]
+    );
+    return { success: true };
+  } catch (err) {
+    console.error("Error in registerBusinessOwner:", err);
+    return { success: false, message: err };
+  }
+},
+  registerCustomer: async ({ userId, birth_date,region_id }) => {
+  try {
+    const [result] = await DB.query(
+      "INSERT INTO customers (customer_id, birth_date,region_id) VALUES (?, ?,?)",
+      [userId, birth_date, region_id]
+    );
+    return { success: true, points: result.points};
+  } catch (err) {
+    console.error("Error in registerCustomer:", err);
+    return { success: false, message: err };
+  }
+},
+updateUser: async (userId, data, userType) => {
+  const conn = await DB.getConnection();
 
     try {
       await conn.beginTransaction();
@@ -116,17 +116,17 @@ const usersModel = {
       let idColumn;
       let profileFields = [];
 
-      if (userType === 'customer') {
-        tableName = 'customers';
-        idColumn = 'customer_id';
-        profileFields = ['address'];
-      } else if (userType === 'business_owner') {
-        tableName = 'business_owners';
-        idColumn = 'business_owner_id';
-        profileFields = ['business_name', 'description', 'website_url', 'logo_url'];
-      } else {
-        throw new Error("Invalid user type");
-      }
+    if (userType === 'customer') {
+      tableName = 'customers';
+      idColumn = 'customer_id';
+      profileFields = ['region_id'];
+    } else if (userType === 'business_owner') {
+      tableName = 'business_owners';
+      idColumn = 'business_owner_id';
+      profileFields = ['business_name', 'description', 'website_url', 'logo_url'];
+    } else {
+      throw new Error("Invalid user type");
+    }
 
       const setProfile = [];
       const profileValues = [];
@@ -154,7 +154,7 @@ const usersModel = {
     } catch (err) {
       await conn.rollback();
       console.error("Error in updateUser:", err);
-      return { success: false, error: err.message };
+      return { success: false, message: err.message };
     } finally {
       conn.release();
     }
@@ -172,7 +172,7 @@ updateCustomerPoints: async (userId, points) => {
     return { success: result.affectedRows > 0 };
   } catch (err) {
     console.error("Error in updateUserPoints:", err);
-    return { success: false, error: err };
+    return { success: false, message: err };
   }
 }
 

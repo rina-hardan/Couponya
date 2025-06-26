@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -20,12 +20,27 @@ import { fetchFromServer } from "../api/ServerAPI";
 export default function Register() {
   const [isCustomer, setIsCustomer] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
+  const [regions, setRegions] = useState([]);
   const [errorMessage, setErrorMessage] = useState(""); // שגיאה שתוצג למשתמש
+
+
+    const handleRegions = async () => {
+      try {
+        const response = await fetchFromServer("regions/", "GET");
+        setRegions(response.regions); // בהנחה ש־res מחזיר מערך של אזורים
+      } catch (err) {
+        console.error("Failed to fetch regions", err);
+      }
+    };
+
   const navigate = useNavigate();
 
   const handleRoleChange = (e) => {
     const role = e.target.value;
     setIsCustomer(role === "customer");
+      if (role === "customer") {
+    handleRegions();
+  }
   };
 
   const handleRegister = async (e) => {
@@ -33,6 +48,10 @@ export default function Register() {
     const form = e.target;
     const formData = new FormData(form);
 
+    // if (!isCustomer && logoFile) {
+    //   formData.append("logo", logoFile);
+    // }
+ 
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
@@ -107,7 +126,19 @@ export default function Register() {
               {isCustomer && (
                 <>
                   <TextField fullWidth name="birth_date" label="Birth Date" type="date" InputLabelProps={{ shrink: true }} required />
-                  <TextField fullWidth name="address" label="Address" required />
+                  <TextField
+                    select
+                    fullWidth
+                    name="region_id"
+                    label="Region"
+                    required 
+                  >
+                    {regions.map((region) => (
+                      <MenuItem key={region.id} value={region.id}>
+                        {region.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </>
               )}
 

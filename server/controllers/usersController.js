@@ -13,6 +13,10 @@ const usersController = {
         return res.status(400).json({ message: "All fields are required" });
       }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email region_id" });
+    }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({ message: "Invalid email address" });
@@ -22,6 +26,24 @@ const usersController = {
         return res.status(400).json({ message: "Password must be at least 6 characters long" });
       }
 
+    let extraData = {};
+    if (role === "customer") {
+      const { birth_date,region_id } = req.body;
+      if (!birth_date) {
+        return res.status(400).json({ error: "Birth date  is required for customers" });
+      }
+       if ( !region_id) {
+        return res.status(400).json({ error: "region is required for customers" });
+      }
+      extraData = { birth_date, region_id };
+    } else if (role === "business_owner") {
+      const { business_name, description, website_url } = req.body;
+       const logo_url = req.file ? `/uploads/${req.file.filename}` : null;
+      if (!business_name) {
+        return res.status(400).json({ error: "Business name is required for business owners" });
+      }
+      extraData = { business_name, description, website_url, logo_url };
+    }
       let extraData = {};
       if (role === "customer") {
         const { birth_date, address } = req.body;
@@ -133,7 +155,7 @@ const usersController = {
     if (req.file) {
       filteredData.logo_url = `/uploads/${req.file.filename}`;
     }
-    if ("name" in filteredData && filteredData.name.trim() === "") {
+       if ("name" in filteredData && filteredData.name.trim() === "") {
       return res.status(400).json({ message: "Name cannot be empty" });
     }
 
@@ -150,6 +172,18 @@ const usersController = {
     ) {
       return res.status(400).json({ message: "Business name and description are required for business owners" });
     }
+  // try {
+//     const result = await usersModel.updateUser(userId, filteredData, userType);
+//     if (result.success) {
+//       res.status(200).json({ message: "User updated successfully." });
+//     } else {
+//       res.status(400).json({ error: result.error || "Failed to update user." });
+//     }
+//   } catch (err) {
+//     res.status(500).json({ error: "Server error", details: err.message });
+//   }
+// }
+ 
 
     try {
       const result = await usersModel.updateUser(userId, filteredData, userType);
