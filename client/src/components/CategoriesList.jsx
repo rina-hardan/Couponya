@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchFromServer } from "../api/ServerAPI";
 
-// import "../css/CategoriesList.css";
 
 export default function CategoriesList() {
     const navigate = useNavigate();

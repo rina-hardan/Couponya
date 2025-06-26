@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from "react-router-dom"; 
+import { useLocation, useNavigate } from "react-router-dom";
 import { TextField, Box, Typography, Button } from "@mui/material"; // הוספתי את ה-importים החסרים
 import { fetchFromServer } from "../api/ServerAPI"; // פונקציה לשליחת בקשות לשרת
 export default function Checkout() {
@@ -13,7 +13,6 @@ export default function Checkout() {
   const [usePoints, setUsePoints] = useState(false);
   const navigate = useNavigate();
 
-  // פונקציה לבדוק אם מספר האשראי תקין
   const validateCreditCard = () => {
     const cardRegex = /^[0-9]{16}$/;
     if (!cardRegex.test(creditCardNumber)) {
@@ -23,28 +22,30 @@ export default function Checkout() {
     return true;
   };
 
-  // פונקציה לשליחת פרטי התשלום וליצירת ההזמנה
   const handleCheckout = async () => {
-    // בדיקה אם האשראי תקין
     if (!validateCreditCard()) return;
 
-    // יצירת אובייקט המידע לשליחה לשרת
-  console.log("Cart Items:", cartItems);
-const items = cartItems.map(item => ({
-  couponId: item.coupon_id,
-  quantity: item.quantity,
-  pricePerUnit: parseFloat(item.price_per_unit),
-}));
-  const orderDetails = {
+    console.log("Cart Items:", cartItems);
+    const items = cartItems.map(item => ({
+      couponId: item.coupon_id,
+      quantity: item.quantity,
+      pricePerUnit: parseFloat(item.price_per_unit),
+    }));
+    const orderDetails = {
       items: items,
       usePoints: usePoints,
       customerBirthDate: customerBirthDate,
     };
     try {
-      // שליחת פרטי ההזמנה לשרת
       const response = await fetchFromServer("order/create", "POST", orderDetails);
       console.log("Order created successfully:", response);
       alert("Payment successful! Your order has been created.");
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+      if (currentUser && response.updatedPoints !== undefined) {
+        currentUser.points = response.updatedPoints;
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      }
       navigate("/CustomerHome"); // חזרה לעמוד הבית
     } catch (error) {
       console.error("Error creating order:", error);

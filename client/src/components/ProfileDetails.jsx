@@ -4,15 +4,20 @@ import {
   Button,
   Container,
   Typography,
-  Box
+  Box,
+  Alert,
 } from "@mui/material";
 import "../css/ProfileDetails.css";
 import { fetchFromServer } from "../api/ServerAPI";
 import { useNavigate } from "react-router-dom";
+
 const ProfileDetails = () => {
   const user = JSON.parse(localStorage.getItem("currentUser")) || {};
   const [formData, setFormData] = useState({});
-const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate();
+
   const isCustomer = user.role === "customer";
   const isBusinessOwner = user.role === "business_owner";
 
@@ -26,21 +31,27 @@ const navigate = useNavigate();
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
     try {
       const result = await fetchFromServer("/users/update", "PUT", formData);
-        alert("Updated successfully");
-        console.log("Update result:", result);
-        if(user.role === "customer") {
-          navigate("/CustomerHome");
-        }
-        else if(user.role === "business_owner") {
-          navigate("/BusinessOwnerHome");
-      } else {
-        alert(result.error || "Update failed");
+
+      setSuccessMessage("Updated successfully");
+      console.log("Update result:", result);
+      const updatedUser = {
+        ...user,
+        ...formData  
+      };
+
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+      if (user.role === "customer") {
+        navigate("/CustomerHome");
+      } else if (user.role === "business_owner") {
+        navigate("/BusinessOwnerHome");
       }
     } catch (err) {
       console.error("Error:", err);
-      alert("Server error");
+      setErrorMessage(err.message || "Server error");
     }
   };
 
@@ -50,6 +61,19 @@ const navigate = useNavigate();
         <Typography variant="h4" className="profile-title" gutterBottom>
           My Profile
         </Typography>
+
+        {errorMessage && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
+
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+
         <form onSubmit={handleUpdate}>
           <TextField
             label="Full Name"
@@ -99,6 +123,7 @@ const navigate = useNavigate();
               />
             </>
           )}
+
           {isBusinessOwner && (
             <>
               <TextField

@@ -8,7 +8,7 @@ const cartController = {
       const userId = req.userId; // אנחנו מקבלים את ה- userId מתוך הטוקן
 
       if (!couponId || !quantity) {
-        return res.status(400).json({ error: "couponId and quantity are required" });
+        return res.status(400).json({ message: "couponId and quantity are required" });
       }
 
       const result = await cartModel.addToCart(userId, couponId, quantity, pricePerUnit,title);
@@ -16,11 +16,11 @@ const cartController = {
       if (result.success) {
         return res.status(201).json({ message: result.message });
       } else {
-        return res.status(500).json({ error: "Failed to add item to cart" });
+        return res.status(500).json({ message: "Failed to add item to cart" });
       }
     } catch (err) {
       console.error("Error in addToCart:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
@@ -45,7 +45,7 @@ const cartController = {
       const { couponId } = req.body;
        const userId = req.userId;
       if (!userId || !couponId) {
-        return res.status(400).json({ error: "userId and couponId are required" });
+        return res.status(400).json({ message: "userId and couponId are required" });
       }
 
       const result = await cartModel.removeFromCart(userId, couponId);
@@ -53,11 +53,11 @@ const cartController = {
       if (result.success) {
         return res.status(200).json({ message: "Item removed from cart successfully" });
       } else {
-        return res.status(500).json({ error: "Failed to remove item from cart" });
+        return res.status(500).json({ message: "Failed to remove item from cart" });
       }
     } catch (err) {
       console.error("Error in removeFromCart:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Error in removeFromCart:"+err.message });
     }
   },
   updateItemQuantity: async (req, res) => {
@@ -67,7 +67,7 @@ const cartController = {
 
       // וידוא שהמשתמש שלח את הנתונים הדרושים
       if (!couponId || !quantity) {
-        return res.status(400).json({ error: "couponId and quantity are required" });
+        return res.status(400).json({ message: "couponId and quantity are required" });
       }
 
       // קריאה ל-model לעדכון הכמות
@@ -76,13 +76,14 @@ const cartController = {
       if (result.success) {
         return res.status(200).json({ message: result.message });
       } else {
-        return res.status(500).json({ error: result.message });
+        return res.status(500).json({ message: result.message });
       }
     } catch (err) {
       console.error("Error in updateItemQuantity:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   }
+  
 };
 
 export default cartController;

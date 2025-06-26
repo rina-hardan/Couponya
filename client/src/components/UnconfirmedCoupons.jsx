@@ -7,6 +7,7 @@ import {
   Typography,
   Button,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import { fetchFromServer } from "../api/ServerAPI";
 import CheckIcon from "@mui/icons-material/Check";
@@ -16,25 +17,30 @@ const UnconfirmedCoupons = () => {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(""); // הודעת שגיאה
 
   const fetchUnconfirmed = async () => {
     setLoading(true);
+    setErrorMessage("");
     try {
       const data = await fetchFromServer("/coupons/unconfirmedCoupons");
       setCoupons(data);
     } catch (error) {
       console.error("Error fetching unconfirmed coupons:", error);
+      setErrorMessage(error.message || "Failed to load unconfirmed coupons");
     }
     setLoading(false);
   };
 
   const handleConfirm = async (couponId) => {
+    setErrorMessage("");
     setConfirming(couponId);
     try {
       await fetchFromServer(`/coupons/confirmCoupon/${couponId}`, "PUT");
       setCoupons((prev) => prev.filter((c) => c.id !== couponId));
     } catch (error) {
       console.error("Error confirming coupon:", error);
+      setErrorMessage(error.message || "Failed to confirm the coupon");
     }
     setConfirming(null);
   };
@@ -48,6 +54,12 @@ const UnconfirmedCoupons = () => {
       <Typography variant="h4" sx={{ mb: 3, fontWeight: "bold" }}>
         קופונים ממתינים לאישור
       </Typography>
+
+      {errorMessage && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {errorMessage}
+        </Alert>
+      )}
 
       {loading ? (
         <Box sx={{ textAlign: "center", mt: 5 }}>
@@ -66,13 +78,10 @@ const UnconfirmedCoupons = () => {
                 {coupon.description}
               </Typography>
               <Typography variant="body2">
-                מחיר: <s>{coupon.original_price} ₪</s> →{" "}
-                {coupon.discounted_price} ₪ | מלאי: {coupon.quantity}
+                מחיר: <s>{coupon.original_price} ₪</s> → {coupon.discounted_price} ₪ | מלאי: {coupon.quantity}
               </Typography>
-
               <Typography variant="body2" color="primary">
-                בתוקף עד:{" "}
-                {new Date(coupon.expiry_date).toLocaleDateString("he-IL")}
+                בתוקף עד: {new Date(coupon.expiry_date).toLocaleDateString("he-IL")}
               </Typography>
             </CardContent>
             <CardActions>

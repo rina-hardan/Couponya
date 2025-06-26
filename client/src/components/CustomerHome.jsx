@@ -22,14 +22,15 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import logo from "../pic/logo.png";
 import "../css/CustomerHome.css";
 import { fetchFromServer } from "../api/ServerAPI";
-import CartItem from "../components/CartItem"; // רכיב המייצג פריט בסל הקניות
+import CartItem from "../components/CartItem";
 
 export default function CustomerHome() {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [cartItems, setCartItems] = useState([]); // מצב לשמירת המוצרים בסל הקניות
-  const [cartPopoverOpen, setCartPopoverOpen] = useState(false); // מצב לפתיחה וסגירה של חלונית סל הקניות
+  const [cartItems, setCartItems] = useState([]); 
+  const [cartPopoverOpen, setCartPopoverOpen] = useState(false); 
   const navigate = useNavigate();
   const [usePoints, setUsePoints] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const open = Boolean(anchorEl);
 
@@ -57,11 +58,11 @@ export default function CustomerHome() {
 
   const handleCartClick = (event) => {
     loadCartItems();
-    setCartPopoverOpen(true); 
+    setCartPopoverOpen(true);
   };
 
   const handleCartPopoverClose = () => {
-    setCartPopoverOpen(false); 
+    setCartPopoverOpen(false);
   };
 
   const handleRemoveItem = async (itemId) => {
@@ -109,7 +110,69 @@ export default function CustomerHome() {
               <AccountCircleIcon sx={{ mr: 1 }} />
               <Typography>Hello {currentUser.userName}</Typography>
             </IconButton>
+            <Popover
+              open={cartPopoverOpen}
+              anchorEl={anchorEl}
+              onClose={handleCartPopoverClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
 
+              <Typography sx={{ p: 2 }}>Your Cart</Typography>
+              {cartItems.length > 0 ? (
+                <List>
+                  {cartItems.map((item, index) => (
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      onRemove={() => { handleRemoveItem(item.coupon_id) }}
+                      onUpdate={handleUpdateQuantity}
+                    />
+
+                  ))}
+                </List>
+
+              ) : (
+                <Typography sx={{ p: 2 }}>No items in your cart</Typography>
+              )}
+              <Typography variant="body2" sx={{ marginTop: 2 }}>
+                You have {currentUser.points} points available.
+              </Typography>
+              <Button
+                onClick={() => setUsePoints(prev => !prev)}
+                variant="outlined"
+                sx={{ marginTop: 1 }}
+              >
+                {usePoints ? "Don't Use Points" : "Use Points"}
+              </Button>
+
+              <Button
+                onClick={() => navigate("/checkout", {
+                  state: {
+                    cartItems: cartItems,  // פרטי המוצרים בסל
+                    userPoints: currentUser.points,  // נקודות הלקוח
+                    customerBirthDate: currentUser.birth_date  // תאריך לידה
+                  }
+                })}
+                variant="contained"
+                sx={{ margin: 2 }}
+              >
+                Checkout
+              </Button>
+            </Popover>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <IconButton onClick={handleCartClick}>
+                <Badge badgeContent={cartItems.length} color="primary">
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+            </Box>
             <Menu
               anchorEl={anchorEl}
               open={open}
@@ -142,71 +205,15 @@ export default function CustomerHome() {
         </header>
 
         <main className="main-content">
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <IconButton onClick={handleCartClick}>
-              <Badge badgeContent={cartItems.length} color="primary">
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
-          </Box>
 
-          {/* Popover לסל הקניות */}
-          <Popover
-            open={cartPopoverOpen}
-            anchorEl={anchorEl}
-            onClose={handleCartPopoverClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
+          {errorMessage && (
+            <Box sx={{ mx: 3, mt: 2 }}>
+              <Alert severity="error" onClose={() => setErrorMessage("")}>
+                {errorMessage}
+              </Alert>
+            </Box>
+          )}
 
-            <Typography sx={{ p: 2 }}>Your Cart</Typography>
-            {cartItems.length > 0 ? (
-              <List>
-                {cartItems.map((item, index) => (
-                  <CartItem
-                    key={item.id}
-                    item={item}
-                    onRemove={() => { handleRemoveItem(item.id) }}
-                    onUpdate={handleUpdateQuantity}
-                  />
-
-                ))}
-              </List>
-
-            ) : (
-              <Typography sx={{ p: 2 }}>No items in your cart</Typography>
-            )}
-            <Typography variant="body2" sx={{ marginTop: 2 }}>
-              You have {currentUser.points} points available.
-            </Typography>
-            <Button
-              onClick={() => setUsePoints(prev => !prev)}
-              variant="outlined"
-              sx={{ marginTop: 1 }}
-            >
-              {usePoints ? "Don't Use Points" : "Use Points"}
-            </Button>
-
-            <Button
-              onClick={() => navigate("/checkout", {
-                state: {
-                  cartItems: cartItems,  // פרטי המוצרים בסל
-                  userPoints: currentUser.points,  // נקודות הלקוח
-                  customerBirthDate: currentUser.birth_date  // תאריך לידה
-                }
-              })}
-              variant="contained"
-              sx={{ margin: 2 }}
-            >
-              Checkout
-            </Button>
-          </Popover>
 
           <Outlet />
         </main>

@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import { Category, CheckCircle } from "@mui/icons-material";
 import logo from "../pic/logo.png";
-import "../css/CustomerHome.css"; // שימוש באותו CSS כמו של הלקוח
+import "../css/CustomerHome.css"; 
 
 export default function AdminHome() {
   const navigate = useNavigate();

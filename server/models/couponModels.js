@@ -268,7 +268,14 @@ async getUnConfirmedCoupons() {
     return rows;
   },
 
-
+ updateCouponQuantities: async (items, connection) => {
+  for (const item of items) {
+    await connection.query(
+      `UPDATE coupons SET quantity = quantity - ? WHERE id = ? AND quantity >= ?`,
+      [item.quantity, item.couponId, item.quantity]
+    );
+  }
+}
 
 
 };

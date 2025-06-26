@@ -1,4 +1,3 @@
-// components/BusinessCouponsManager.jsx
 import React, { useState, useEffect } from "react";
 import {
   Typography, Box, Button, Select, MenuItem, InputLabel, FormControl
@@ -19,7 +18,6 @@ export default function BusinessCouponsManager() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   const fetchCoupons = async (isNew = false) => {
     if (loading || (!isNew && !hasMore)) return;

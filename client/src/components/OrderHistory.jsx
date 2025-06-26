@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { fetchFromServer } from "../api/ServerAPI";
 import "../css/OrderHistory.css";
+import { Alert, Container, Typography } from "@mui/material";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -13,6 +15,7 @@ export default function OrderHistory() {
         console.log("Orders fetched successfully:", result);
       } catch (error) {
         console.error("Failed to fetch orders", error);
+        setErrorMessage(error.message || "Failed to fetch orders. Please try again.");
       }
     };
 
@@ -20,10 +23,19 @@ export default function OrderHistory() {
   }, []);
 
   return (
-    <div className="order-history-page">
-      <h2>🛍️ My Order History</h2>
-      {orders.length === 0 ? (
-        <p>🙁 No orders found.</p>
+    <Container className="order-history-page" maxWidth="md">
+      <Typography variant="h4" gutterBottom>
+        🛍️ My Order History
+      </Typography>
+
+      {errorMessage && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {errorMessage}
+        </Alert>
+      )}
+
+      {orders.length === 0 && !errorMessage ? (
+        <Typography variant="body1">🙁 No orders found.</Typography>
       ) : (
         <div className="orders-list">
           {orders.map((order, index) => (
@@ -64,6 +76,6 @@ export default function OrderHistory() {
           ))}
         </div>
       )}
-    </div>
+    </Container>
   );
 }

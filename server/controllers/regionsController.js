@@ -20,7 +20,7 @@ const regionsController = {
 
   } catch (err) {
     console.error("Error in adding region:", err);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 }
 ,
@@ -31,7 +31,7 @@ const regionsController = {
     res.status(200).json({ regions });
     } catch (error) {
         console.error("Error getting regions:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ message: "Error getting regions:"+ error.message });
     }               
     }
 

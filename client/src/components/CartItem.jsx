@@ -19,10 +19,7 @@ export default function CartItem({ item, onRemove, onUpdate, userPoints, onUsePo
     onRemove(item.coupon_id);
   };
 
-  const handleUsePointsChange = (event) => {
-    setUsePoints(event.target.checked);
-    onUsePoints(event.target.checked);  // שליחה למעלה על מנת לעדכן את ההעדפה
-  };
+
 
   return (
     <ListItem>

@@ -11,6 +11,7 @@ import {
   Typography,
   MenuItem,
   Link,
+  Alert,
 } from "@mui/material";
 import logo from "../pic/logo.png";
 import "../css/Register.css";
@@ -19,6 +20,7 @@ import { fetchFromServer } from "../api/ServerAPI";
 export default function Register() {
   const [isCustomer, setIsCustomer] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(""); // שגיאה שתוצג למשתמש
   const navigate = useNavigate();
 
   const handleRoleChange = (e) => {
@@ -31,33 +33,32 @@ export default function Register() {
     const form = e.target;
     const formData = new FormData(form);
 
-    // if (!isCustomer && logoFile) {
-    //   formData.append("logo", logoFile);
-    // }
-for (let [key, value] of formData.entries()) {
-  console.log(key, value);
-}
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
     try {
+      setErrorMessage(""); 
+
       const result = await fetchFromServer("users/register", "POST", formData);
+
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
-        alert("Registration successful!");
 
         if (result.user.role === "customer") {
           navigate("/CustomerHome");
         } else if (result.user.role === "business_owner") {
           navigate("/BusinessOwnerHome");
-        }
-        else if (result.user.role === "admin") {
+        } else if (result.user.role === "admin") {
           navigate("/AdminHome");
         }
       } else {
-        alert(result.error || "Registration failed");
+        setErrorMessage("Registration failed. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      alert("Registration failed");
+      setErrorMessage(err.message || "Registration failed");
     }
   };
 
@@ -76,6 +77,13 @@ for (let [key, value] of formData.entries()) {
             <Typography variant="body2" className="register-subtitle">
               Create your account
             </Typography>
+
+            {/* הודעת שגיאה */}
+            {errorMessage && (
+              <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+                {errorMessage}
+              </Alert>
+            )}
 
             <Box component="form" onSubmit={handleRegister} className="register-form">
               <TextField fullWidth name="userName" label="Username" required />

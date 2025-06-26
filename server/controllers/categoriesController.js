@@ -6,13 +6,13 @@ const categoriesController = {
       const { name } = req.body;
 
       if (!name) {
-        return res.status(400).json({ error: "Category name is required" });
+        return res.status(400).json({ message: "Category name is required" });
       }
       const img_url = req.file ? `/uploads/${req.file.filename}` : null;
 
       const result = await categoriesModel.addCategory({ name, img_url });
       if (!result.success) {
-        return res.status(500).json({ error: "Failed to add category" });
+        return res.status(500).json({ message: "Failed to add category" });
       }
       res.status(201).json({
         name,
@@ -22,7 +22,7 @@ const categoriesController = {
       });
     } catch (err) {
       console.error("Error in addCategory:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Error in addCategory:" + err.message });
     }
   },
 
@@ -32,7 +32,7 @@ const categoriesController = {
       res.status(200).json({ categories });
     } catch (err) {
       console.error("Error in getCategories:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Error in getCategories:" + err.message });
     }
   }
 };

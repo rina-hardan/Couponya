@@ -49,7 +49,6 @@ const CouponsDisplay = () => {
 
   const limit = 12;
 
-  // חיפוש - debounce
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       setSearch(searchInput);
@@ -58,13 +57,19 @@ const CouponsDisplay = () => {
   }, [searchInput]);
 
   const fetchCategories = async () => {
+    try{
     const data = await fetchFromServer("/categories");
     setCategoriesList([{ id: 0, name: "כל הקטגוריות" }, ...data.categories]);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
   };
-
+  }
   const fetchRegions = async () => {
+    try{
     const data = await fetchFromServer("/regions");
     setRegionsList([{ id: 0, name: "כל האזורים" }, ...data.regions]);
+  } catch (error) {
+    console.error("Error fetching regions:", error);  }
   };
 
   const fetchCoupons = useCallback(

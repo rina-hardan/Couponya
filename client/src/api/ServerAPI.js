@@ -10,7 +10,7 @@ export async function fetchFromServer(endpoint, method = "GET", body = null) {
 
     const config = {
       url: endpoint,
-      method: method, 
+      method: method,
       headers: {
         ...(token && { Authorization: `${token}` })
       }
@@ -28,10 +28,18 @@ export async function fetchFromServer(endpoint, method = "GET", body = null) {
     return response.data;
   } catch (error) {
     console.error("Axios error:", error);
-  console.log("Axios error response:", error.message);
-    if (error.response?.data?.message) {
+    console.log("Axios error response:", error.message);
+    if( error.response?.status === 401) {
+      console.error("Unauthorized access - redirecting to login");
+        localStorage.clear();
+        alert("Unauthorized access - redirecting to login");
+        window.location.href = "/login";
+        return;
+      }
+    }
+    if (error.response?.data?.message ) {
       throw new Error(error.response.data.message);
     }
     throw error;
   }
-}
+

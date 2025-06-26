@@ -10,7 +10,7 @@ const couponsController = {
       const newCoupon = await couponsModel.create(couponData);
       res.status(201).json(newCoupon);
     } catch (error) {
-      res.status(500).json({ message: "Error creating coupon", error: error.message });
+      res.status(500).json({ message: "Error creating coupon"+ error.message });
     }
   },
   getAllActiveCoupons: async (req, res) => {
@@ -42,7 +42,7 @@ const couponsController = {
       res.status(200).json(coupons);
     } catch (error) {
       console.error("Error retrieving active coupons:", error);
-      res.status(500).json({ message: "Error retrieving active coupons", error: error.message });
+      res.status(500).json({ message: "Error retrieving active coupons"+error.message });
     }
   },
 
@@ -56,7 +56,7 @@ const couponsController = {
         res.status(404).json({ message: "Coupon not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving coupon", error: error.message });
+      res.status(500).json({ message: "Error retrieving coupon"+ error.message });
     }
   },
 
@@ -109,7 +109,7 @@ const couponsController = {
         res.status(404).json({ message: "Coupon not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Error updating coupon", error: error.message });
+      res.status(500).json({ message: "Error updating coupon"+ error.message });
     }
   },
 
@@ -123,7 +123,7 @@ const couponsController = {
         res.status(404).json({ message: "Coupon not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Error deleting coupon", error: error.message });
+      res.status(500).json({ message: "Error deleting coupon"+ error.message });
     }
   },
 
@@ -147,7 +147,7 @@ const couponsController = {
 
       res.status(200).json(coupons);
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving coupons for business owner", error: error.message });
+      res.status(500).json({ message: "Error retrieving coupons for business owner"+ error.message });
     }
   }
   ,
@@ -161,7 +161,7 @@ const couponsController = {
         res.status(404).json({ message: "Coupon not found or already confirmed" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Error confirming coupon", error: error.message });
+      res.status(500).json({ message: "Error confirming coupon"+error.message });
     }
   },
   getUnConfirmedCoupons: async (req, res) => {
@@ -169,7 +169,7 @@ const couponsController = {
       const coupons = await couponsModel.getUnConfirmedCoupons();
       res.status(200).json(coupons);
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving unconfirmed coupons", error: error.message });
+      res.status(500).json({ message: "Error retrieving unconfirmed coupons"+ error.message });
     }
   },
   getRecommendedCoupons: async (req, res) => {
@@ -210,16 +210,9 @@ const couponsController = {
 
     } catch (error) {
       console.error("Error in getRecommended:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
-  },updateCouponQuantities: async (items, connection) => {
-  for (const item of items) {
-    await connection.query(
-      `UPDATE coupons SET quantity = quantity - ? WHERE id = ? AND quantity >= ?`,
-      [item.quantity, item.couponId, item.quantity]
-    );
   }
-}
 };
 
 export default couponsController;

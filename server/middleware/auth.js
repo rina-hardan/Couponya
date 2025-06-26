@@ -3,19 +3,17 @@ const secretKey = process.env.SECRETKEY||'SECRETKEY';
 export function verifyToken(req, res, next) {
     const token = req.header('Authorization');
      console.log(token);
-    if (!token) return res.status(401).json({ error: 'Access denied' });
+    if (!token) return res.status(401).json({ message: 'Access denied' });
 
     try {
         const decoded = jwt.verify(token, secretKey);
         req.userId = decoded.userId;
         req.role = decoded.role;
         req.email = decoded.email;
-        // console.log("decoded.email:", decoded.email);
-        // console.log("decoded.role:", decoded.role);
         next();
 
     } catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
     }
 };
 
@@ -29,7 +27,7 @@ const token = jwt.sign({ userId,role ,email}, secretKey, {
 export function isAdmin(req, res, next) {  
      console.log("req.role:", req.role);
     if (req.role != 'admin') { 
-        return res.status(403).json({ error: 'Access denied' });
+        return res.status(403).json({ message: 'Access denied' });
     }
     next();
 }

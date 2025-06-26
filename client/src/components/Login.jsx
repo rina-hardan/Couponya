@@ -9,38 +9,43 @@ import {
   Typography,
   Box,
   Paper,
-  Avatar,
   Link,
+  Alert,
 } from "@mui/material";
-import "../css/Login.css"; 
+import "../css/Login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // הודעת שגיאה למשתמש
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      setErrorMessage(""); // נקה שגיאה קודמת
+
       const result = await fetchFromServer("users/login", "POST", {
         email,
         password,
       });
+
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
-         alert("Login successful!");
+        // alert("Login successful!");
+
         if (result.user.role === "customer") {
           navigate("/CustomerHome");
-        } else if (result.user.role === "business_owner") 
-          {navigate("/BusinessOwnerHome"); }
-          else if (result.user.role === "admin") {
-            navigate("/AdminHome");
-          }
+        } else if (result.user.role === "business_owner") {
+          navigate("/BusinessOwnerHome");
+        } else if (result.user.role === "admin") {
+          navigate("/AdminHome");
+        }
       }
     } catch (error) {
-      alert(error.message || "Login failed. Please try again.");
       console.error("Login error:", error);
+      setErrorMessage(error.message || "Login failed. Please try again.");
     }
   };
 
@@ -55,6 +60,13 @@ export default function Login() {
             <Typography component="h1" variant="h5" className="login-title">
               Welcome to Couponya
             </Typography>
+
+            {/* הודעת שגיאה מוצגת כאן */}
+            {errorMessage && (
+              <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+                {errorMessage}
+              </Alert>
+            )}
 
             <Box component="form" onSubmit={handleLogin} className="login-form">
               <TextField
@@ -87,7 +99,7 @@ export default function Login() {
               >
                 Login
               </Button>
-              <Typography variant="body2" >
+              <Typography variant="body2" sx={{ mt: 2 }}>
                 Don't have an account?{" "}
                 <Link onClick={() => navigate("/register")} className="login-link">
                   Sign up here

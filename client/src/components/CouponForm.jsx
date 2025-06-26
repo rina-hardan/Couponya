@@ -113,9 +113,21 @@ export default function CouponForm() {
               delete formData[key];
             }
           }
+          try{
         await fetchFromServer(`/coupons/${initialData.id}`, "PUT", formData);
+          } catch (error) {
+            console.error("Error updating coupon:", error);
+            setError("Failed to update coupon.");
+            return;
+          }
       } else {
+        try{
         await fetchFromServer("/coupons/create", "POST", formData);
+        } catch (error) {
+          console.error("Error creating coupon:", error);
+          setError("Failed to create coupon.");
+          return;
+        }
       }
 
       navigate("/BusinessOwnerHome");
