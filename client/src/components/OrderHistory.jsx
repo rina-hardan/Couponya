@@ -1,27 +1,50 @@
 import { useEffect, useState } from "react";
 import { fetchFromServer } from "../api/ServerAPI";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import "../css/OrderHistory.css";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
+  const [sort, setSort] = useState("order_date_desc");
+
+  const fetchOrders = async (selectedSort) => {
+    try {
+      const result = await fetchFromServer(`order/?sort=${selectedSort}`, "GET");
+      setOrders(result.orders || []);
+      console.log("Orders fetched successfully:", result);
+    } catch (error) {
+      console.error("Failed to fetch orders", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const result = await fetchFromServer("order/", "GET");
-        setOrders(result.orders || []);
-        console.log("Orders fetched successfully:", result);
-      } catch (error) {
-        console.error("Failed to fetch orders", error);
-      }
-    };
-
-    fetchOrders();
-  }, []);
+    fetchOrders(sort);
+  }, [sort]);
 
   return (
     <div className="order-history-page">
       <h2>🛍️ My Order History</h2>
+
+      <FormControl fullWidth sx={{ maxWidth: 300, mb: 2 }}>
+        <InputLabel id="sort-label">Sort By</InputLabel>
+        <Select
+          labelId="sort-label"
+          value={sort}
+          label="Sort By"
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <MenuItem value="order_date_desc">Newest First</MenuItem>
+          <MenuItem value="order_date_asc">Oldest First</MenuItem>
+          <MenuItem value="total_price_desc">Most Expensive</MenuItem>
+          <MenuItem value="total_price_asc">Least Expensive</MenuItem>
+        </Select>
+      </FormControl>
+
       {orders.length === 0 ? (
         <p>🙁 No orders found.</p>
       ) : (

@@ -57,11 +57,11 @@ export default function CustomerHome() {
 
   const handleCartClick = (event) => {
     loadCartItems();
-    setCartPopoverOpen(true); 
+    setCartPopoverOpen(true);
   };
 
   const handleCartPopoverClose = () => {
-    setCartPopoverOpen(false); 
+    setCartPopoverOpen(false);
   };
 
   const handleRemoveItem = async (itemId) => {
@@ -84,6 +84,12 @@ export default function CustomerHome() {
     } catch (error) {
       console.error("Failed to update quantity", error);
     }
+  };
+
+  const handleLogout = () => {
+     handleClose();
+     localStorage.clear();
+    navigate("/login");
   };
 
   return (
@@ -133,7 +139,7 @@ export default function CustomerHome() {
                 <Typography>Order History</Typography>
               </MenuItem>
               <Divider />
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handleLogout}>
                 <LogoutIcon sx={{ mr: 1 }} />
                 <Typography>Logout</Typography>
               </MenuItem>

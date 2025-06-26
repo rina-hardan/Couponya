@@ -1,20 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
   Container,
   Typography,
-  Box
+  Box,
+  MenuItem
 } from "@mui/material";
 import "../css/ProfileDetails.css";
 import { fetchFromServer } from "../api/ServerAPI";
 import { useNavigate } from "react-router-dom";
+
 const ProfileDetails = () => {
   const user = JSON.parse(localStorage.getItem("currentUser")) || {};
   const [formData, setFormData] = useState({});
-const navigate = useNavigate();
+  const [regions, setRegions] = useState([]);
+  const [logoFile, setLogoFile] = useState(null);
+  const navigate = useNavigate();
+
   const isCustomer = user.role === "customer";
   const isBusinessOwner = user.role === "business_owner";
+
+  useEffect(() => {
+    if (isCustomer) {
+      const fetchRegions = async () => {
+        try {
+          const response = await fetchFromServer("regions/", "GET");
+          setRegions(response.regions || []);
+        } catch (error) {
+          console.error("Failed to fetch regions:", error);
+        }
+      };
+      fetchRegions();
+    }
+  }, [isCustomer]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,15 +45,27 @@ const navigate = useNavigate();
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const dataToSend = new FormData();
+
+    // צירוף השדות הפשוטים
+    for (const key in formData) {
+      if (formData[key]) dataToSend.append(key, formData[key]);
+    }
+
+    // צירוף הקובץ אם קיים
+    if (logoFile) {
+      dataToSend.append("logo", logoFile);
+    }
+
     try {
-      const result = await fetchFromServer("/users/update", "PUT", formData);
-        alert("Updated successfully");
-        console.log("Update result:", result);
-        if(user.role === "customer") {
-          navigate("/CustomerHome");
-        }
-        else if(user.role === "business_owner") {
-          navigate("/BusinessOwnerHome");
+      const result = await fetchFromServer("/users/update", "PUT", dataToSend);
+      alert("Updated successfully");
+      console.log("Update result:", result);
+
+      if (user.role === "customer") {
+        navigate("/CustomerHome");
+      } else if (user.role === "business_owner") {
+        navigate("/BusinessOwnerHome");
       } else {
         alert(result.error || "Update failed");
       }
@@ -81,13 +112,22 @@ const navigate = useNavigate();
           {isCustomer && (
             <>
               <TextField
-                label="Address"
-                name="address"
-                defaultValue={user.address || ""}
+                select
+                label="Region"
+                name="region_id"
+                value={formData.region_id || user.region_id || ""}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
-              />
+                required
+              >
+                {regions.map((region) => (
+                  <MenuItem key={region.id} value={region.id}>
+                    {region.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+
               <TextField
                 label="Birth Date"
                 name="birth_date"
@@ -99,6 +139,7 @@ const navigate = useNavigate();
               />
             </>
           )}
+
           {isBusinessOwner && (
             <>
               <TextField
@@ -125,18 +166,30 @@ const navigate = useNavigate();
                 fullWidth
                 margin="normal"
               />
-              <TextField
-                label="Logo URL"
-                name="logo_url"
-                defaultValue={user.logo_url || ""}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
+
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                Upload New Logo
+              </Typography>
+              <input
+                type="file"
+                name="logo"
+                accept="image/*"
+                onChange={(e) => setLogoFile(e.target.files[0])}
               />
+              {user.logo_url && (
+                <Box mt={2}>
+                  <Typography variant="caption">Current Logo:</Typography>
+                  <img
+                    src={import.meta.env.VITE_API_BASE_URL + user.logo_url}
+                    alt="Current Logo"
+                    style={{ maxWidth: "100%", height: "100px" }}
+                  />
+                </Box>
+              )}
             </>
           )}
 
-          <Button type="submit" variant="contained" className="save-button" fullWidth>
+          <Button type="submit" variant="contained" className="save-button" fullWidth sx={{ mt: 3 }}>
             Save Changes
           </Button>
         </form>

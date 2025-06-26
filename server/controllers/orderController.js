@@ -52,7 +52,7 @@ const ordersController = {
     const couponCodesAndTitles = coupons.map(c => `${c.code} - ${c.title}`).join(", ");
 
       await connection.commit();
-      
+
       await couponsModel.updateCouponQuantities(items); 
       const emailText = `Thank you for your order! Your coupon codes are:\n${couponCodesAndTitles}`;
       await sendMail(customerEmail, "Your Coupons", emailText);
@@ -80,35 +80,26 @@ const ordersController = {
     }
   }
   ,
-  getOrdersByCustomer: async (req, res) => {
+getOrdersByCustomer: async (req, res) => {
   try {
     const customerId = req.userId;
     if (!customerId) {
       return res.status(400).json({ error: "Missing customer ID" });
     }
- const {
-      sort = "created_at_desc", 
-      page = 1,
-      limit = 10
-    } = req.query;
 
-    const offset = (page - 1) * limit;
+    const { sort = "order_date_desc" } = req.query;
 
     const orders = await ordersModel.getOrdersByCustomerId({
       customerId,
-      sort,
-      limit: parseInt(limit),
-      offset: parseInt(offset)
+      sort
     });
 
-    // const orders = await ordersModel.getOrdersByCustomerId(customerId);
-
-      res.json({ orders });
-    } catch (error) {
-      console.error("Error getting orders:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+    res.json({ orders });
+  } catch (error) {
+    console.error("Error getting orders:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+}
 };
 
 export default ordersController;

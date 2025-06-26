@@ -74,11 +74,11 @@ const usersModel = {
     return { success: false, error: err };
   }
 },
-  registerCustomer: async ({ userId, birth_date,address }) => {
+  registerCustomer: async ({ userId, birth_date,region_id }) => {
   try {
     const [result] = await DB.query(
-      "INSERT INTO customers (customer_id, birth_date,address) VALUES (?, ?,?)",
-      [userId, birth_date, address]
+      "INSERT INTO customers (customer_id, birth_date,region_id) VALUES (?, ?,?)",
+      [userId, birth_date, region_id]
     );
     return { success: true, points: result.points};
   } catch (err) {
@@ -119,7 +119,7 @@ updateUser: async (userId, data, userType) => {
     if (userType === 'customer') {
       tableName = 'customers';
       idColumn = 'customer_id';
-      profileFields = ['address'];
+      profileFields = ['region_id'];
     } else if (userType === 'business_owner') {
       tableName = 'business_owners';
       idColumn = 'business_owner_id';

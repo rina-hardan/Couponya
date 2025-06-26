@@ -15,7 +15,7 @@ const usersController = {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Invalid email address" });
+      return res.status(400).json({ error: "Invalid email region_id" });
     }
 
     if (password.length < 6) {
@@ -24,14 +24,14 @@ const usersController = {
 
     let extraData = {};
     if (role === "customer") {
-      const { birth_date,address } = req.body;
-      if (!birth_date|| !address) {
+      const { birth_date,region_id } = req.body;
+      if (!birth_date) {
         return res.status(400).json({ error: "Birth date  is required for customers" });
       }
-       if ( !address) {
-        return res.status(400).json({ error: "address is required for customers" });
+       if ( !region_id) {
+        return res.status(400).json({ error: "region is required for customers" });
       }
-      extraData = { birth_date, address };
+      extraData = { birth_date, region_id };
     } else if (role === "business_owner") {
       const { business_name, description, website_url } = req.body;
        const logo_url = req.file ? `/uploads/${req.file.filename}` : null;
@@ -142,11 +142,6 @@ const usersController = {
     res.status(500).json({ error: "Server error", details: err.message });
   }
 }
-
- 
-
-
-
 };
 
 export default usersController;
