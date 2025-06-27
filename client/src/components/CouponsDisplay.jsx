@@ -378,7 +378,7 @@ const CouponsDisplay = () => {
         setLoadingCoupons(false);
       }
     },
-    [categoryId, regionId, minPrice, maxPrice, search, sort, offset, loadingCoupons, hasMore]
+    [categoryId, regionId, minPrice, maxPrice, search, sort, loadingCoupons, hasMore]
   );
 
   const fetchSpecialCoupons = async () => {
@@ -412,7 +412,6 @@ const CouponsDisplay = () => {
       if (specialOnly) {
         fetchSpecialCoupons();
       } else {
-        setOffset(0);
         setHasMore(true);
         fetchCoupons(false);
       }

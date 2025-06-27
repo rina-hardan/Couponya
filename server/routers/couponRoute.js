@@ -1,10 +1,13 @@
 import express from 'express';
 import couponsController from '../controllers/couponController.js';
 import { isAdmin, verifyToken } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import { param } from "express-validator";
+import { createCouponValidator, updateCouponValidator, couponIdValidator } from '../middleware/validators/couponValidator.js';
 const couponsRouter = express.Router();
 
 //Add Coupon
-couponsRouter.post('/create',verifyToken, couponsController.createCoupon);
+couponsRouter.post('/create', verifyToken, createCouponValidator, validate, couponsController.createCoupon);
 
 couponsRouter.get('/', couponsController.getAllActiveCoupons);
 
@@ -14,11 +17,13 @@ couponsRouter.get('/BusinessOwnerCoupons',verifyToken, couponsController.getCoup
 //getCouponById
 couponsRouter.get('/unconfirmedCoupons',verifyToken,isAdmin, couponsController.getUnConfirmedCoupons);
 couponsRouter.post('/recommendedCoupons',verifyToken, couponsController.getRecommendedCoupons);
-couponsRouter.get('/:id', couponsController.getCouponById);
+couponsRouter.get('/:id', couponIdValidator, validate, couponsController.getCouponById);
 
-couponsRouter.put('/confirmCoupon/:couponId',verifyToken,isAdmin, couponsController.confirmCoupon);
-couponsRouter.put('/:id',verifyToken, couponsController.updateCoupon);
-couponsRouter.delete('/:id',verifyToken, couponsController.deleteCoupon);
+couponsRouter.put('/confirmCoupon/:couponId', verifyToken, isAdmin, [
+  param("couponId").isInt({ gt: 0 }).withMessage("Coupon ID must be a positive integer")
+], validate, couponsController.confirmCoupon);
+couponsRouter.put('/:id', verifyToken, updateCouponValidator, validate, couponsController.updateCoupon);
+couponsRouter.delete('/:id', verifyToken, couponIdValidator, validate, couponsController.deleteCoupon);
 
 
 export default couponsRouter;
