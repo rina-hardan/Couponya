@@ -83,52 +83,26 @@ const usersController = {
     }
   }
   ,
+  updateUser : async (req, res) => {
+  const userId = req.userId;
+  const userType = req.role;
+  const data = { ...req.body };
 
-  update: async (req, res) => {
-    const userId = req.userId;
-    const userType = req.role;
-    const incomingData = req.body;
-
-    const forbiddenFields = ['email', 'userName', 'role', 'id'];
-
-    const filteredData = {};
-    for (const [key, value] of Object.entries(incomingData)) {
-      if (!forbiddenFields.includes(key)) {
-        filteredData[key] = value;
-      }
-    }
-    if (req.file) {
-      filteredData.logo_url = `/uploads/${req.file.filename}`;
-    }
-    if ("name" in filteredData && filteredData.name.trim() === "") {
-      return res.status(400).json({ message: "Name cannot be empty" });
-    }
-
-    if (userType === "customer" && "region_id" in filteredData && filteredData.region_id.trim() === "") {
-      return res.status(400).json({ message: "Region is required for customers" });
-    }
-
-    if (
-      userType === "business_owner" &&
-      (
-        ("business_name" in filteredData && filteredData.business_name.trim() === "") ||
-        ("description" in filteredData && filteredData.description.trim() === "")
-      )
-    ) {
-      return res.status(400).json({ message: "Business name and description are required for business owners" });
-    }
-    try {
-      const result = await usersModel.updateUser(userId, filteredData, userType);
-
-      if (result.success) {
-        res.status(200).json({ message: "User updated successfully.", user: result.user });
-      } else {
-        res.status(400).json({ message: result.error || "Failed to update user." });
-      }
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
+  if (req.file) {
+    data.logo_url = `/uploads/${req.file.filename}`;
   }
+
+  try {
+    const result = await usersModel.updateUser(userId, data, userType);
+    if (result.success) {
+      return res.status(200).json({ message: "User updated successfully", user: result.user });
+    }
+    return res.status(400).json({ message: result.message });
+  } catch (err) {
+    console.error("Controller error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
 };
 
 export default usersController;
