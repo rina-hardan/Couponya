@@ -299,6 +299,7 @@ const sortOptions = [
 
 const CouponsDisplay = () => {
   const location = useLocation();
+  const DEFAULT_LIMIT = import.meta.env.DEFAULT_LIMIT
   const specialOnly = location.state?.specialOnly || false;
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [categoryId, setCategoryId] = useState(location.state?.categoryId || 0);
@@ -355,7 +356,6 @@ const CouponsDisplay = () => {
           maxPrice,
           search,
           sort,
-          limit,
           page: loadMore ? page + 1 : 1,
         };
 
@@ -371,7 +371,7 @@ const CouponsDisplay = () => {
           setPage(1);
         }
 
-        setHasMore(data.length === limit);
+        setHasMore(data.length === DEFAULT_LIMIT);
       } catch (error) {
         console.error("Error fetching coupons:", error);
       } finally {

@@ -354,7 +354,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
 -- select * FROM order_items;
 -- select * FROM cart_items;
 
--- קופון מספר 1
+
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -367,7 +367,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 2
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -380,7 +379,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 3
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -393,7 +391,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 4
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -406,7 +403,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 5
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -419,7 +415,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 6
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -432,7 +427,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 7
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -445,7 +439,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 8
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -458,7 +451,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 9
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -471,7 +463,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 10
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -484,7 +475,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 11
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -497,7 +487,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 12
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -510,7 +499,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 13
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -523,7 +511,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 14
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -536,7 +523,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 15
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -549,7 +535,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 16
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -562,7 +547,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 17
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -575,7 +559,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 18
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -588,7 +571,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 19
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,
@@ -601,7 +583,6 @@ CREATE TABLE IF NOT EXISTS cart_items (
 --   TRUE, 'confirmed'
 -- );
 
--- -- קופון מספר 20
 -- INSERT INTO coupons (
 --   business_owner_id, category_id, region_id, title, description,
 --   original_price, discounted_price, address, code, quantity, expiry_date,

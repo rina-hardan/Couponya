@@ -81,102 +81,85 @@ registerBusinessOwnerUser: async (data) => {
     }
   }
   ,
-updateUser: async (userId, data, userType) => {
-  const conn = await DB.getConnection();
-  try {
-    await conn.beginTransaction();
+ updateUser: async (userId, data, role) => {
+    const conn = await DB.getConnection();
+    try {
+      await conn.beginTransaction();
 
-    // עדכון בטבלת users
-    const userFields = ['name'];
-    const setUser = [];
-    const userValues = [];
+      const userFields = ['name'];
+      const userUpdates = [];
+      const userValues = [];
 
-    for (const key of userFields) {
-      if (data[key] !== undefined) {
-        setUser.push(`${key} = ?`);
-        userValues.push(data[key]);
+      for (const key of userFields) {
+        if (data[key] !== undefined) {
+          userUpdates.push(`${key} = ?`);
+          userValues.push(data[key]);
+        }
       }
-    }
 
-    if (setUser.length > 0) {
-      const userSql = `
-        UPDATE users SET ${setUser.join(', ')}
-        WHERE id = ?
-      `;
-      userValues.push(userId);
-      await conn.query(userSql, userValues);
-    }
-
-    // עדכון בטבלה הרלוונטית לפי תפקיד
-    let tableName;
-    let idColumn;
-    let profileFields = [];
-
-    if (userType === 'customer') {
-      tableName = 'customers';
-      idColumn = 'customer_id';
-      profileFields = ['region_id'];
-    } else if (userType === 'business_owner') {
-      tableName = 'business_owners';
-      idColumn = 'business_owner_id';
-      profileFields = ['business_name', 'description', 'website_url', 'logo_url'];
-    } else {
-      throw new Error("Invalid user type");
-    }
-
-    const setProfile = [];
-    const profileValues = [];
-
-    for (const key of profileFields) {
-      if (data[key] !== undefined) {
-        setProfile.push(`${key} = ?`);
-        profileValues.push(data[key]);
+      if (userUpdates.length) {
+        await conn.query(
+          `UPDATE users SET ${userUpdates.join(', ')} WHERE id = ?`,
+          [...userValues, userId]
+        );
       }
-    }
 
-    if (setProfile.length > 0) {
-      const profileSql = `
-        UPDATE ${tableName}
-        SET ${setProfile.join(', ')}
-        WHERE ${idColumn} = ?
-      `;
-      profileValues.push(userId);
-      await conn.query(profileSql, profileValues);
-    }
+      const profileMap = {
+        customer: {
+          table: 'customers',
+          idField: 'customer_id',
+          fields: ['region_id']
+        },
+        business_owner: {
+          table: 'business_owners',
+          idField: 'business_owner_id',
+          fields: ['business_name', 'description', 'website_url', 'logo_url']
+        }
+      };
 
-    await conn.commit();
+      const profile = profileMap[role];
+      if (!profile) throw new Error("Invalid role");
 
-    // שליפה מחדש של המשתמש עם JOIN לפי התפקיד
-    let fullUser;
-    if (userType === 'customer') {
+      const profileUpdates = [];
+      const profileValues = [];
+
+      for (const key of profile.fields) {
+        if (data[key] !== undefined) {
+          profileUpdates.push(`${key} = ?`);
+          profileValues.push(data[key]);
+        }
+      }
+
+      if (profileUpdates.length) {
+        await conn.query(
+          `UPDATE ${profile.table} SET ${profileUpdates.join(', ')} WHERE ${profile.idField} = ?`,
+          [...profileValues, userId]
+        );
+      }
+
+      await conn.commit();
+
+      // שליפה מחדש
       const [rows] = await conn.query(`
         SELECT u.id, u.userName, u.name, u.email, u.role, u.created_at,
-               c.region_id, c.birth_date, c.points
+               ${role === 'customer'
+                 ? 'c.region_id, c.birth_date, c.points'
+                 : 'b.business_name, b.description, b.website_url, b.logo_url'}
         FROM users u
-        JOIN customers c ON u.id = c.customer_id
+        JOIN ${profile.table} ${role === 'customer' ? 'c' : 'b'}
+        ON u.id = ${role === 'customer' ? 'c.customer_id' : 'b.business_owner_id'}
         WHERE u.id = ?
       `, [userId]);
-      fullUser = rows[0];
-    } else if (userType === 'business_owner') {
-      const [rows] = await conn.query(`
-        SELECT u.id, u.userName, u.name, u.email, u.role, u.created_at,
-               b.business_name, b.description, b.website_url, b.logo_url
-        FROM users u
-        JOIN business_owners b ON u.id = b.business_owner_id
-        WHERE u.id = ?
-      `, [userId]);
-      fullUser = rows[0];
+
+      return { success: true, user: rows[0] };
+
+    } catch (err) {
+      await conn.rollback();
+      console.error("Model error:", err);
+      return { success: false, message: err.message };
+    } finally {
+      conn.release();
     }
-
-    return { success: true, user: fullUser };
-
-  } catch (err) {
-    await conn.rollback();
-    console.error("Error in updateUser:", err);
-    return { success: false, message: err.message };
-  } finally {
-    conn.release();
-  }
 }
 ,
 
