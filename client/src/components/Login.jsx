@@ -17,13 +17,15 @@ import "../css/Login.css";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // הודעת שגיאה למשתמש
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      setErrorMessage(""); // נקה שגיאה קודמת
+      setErrorMessage("");
+      setErrorList([]);
 
       const result = await fetchFromServer("users/login", "POST", {
         email,
@@ -33,7 +35,6 @@ export default function Login() {
       if (result.token) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("currentUser", JSON.stringify(result.user));
-        // alert("Login successful!");
 
         if (result.user.role === "customer") {
           navigate("/CustomerHome");
@@ -45,10 +46,14 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      if (error.response && error.response.data && error.response.data.message) {
-        setErrorMessage(error.response.data.message);
+      const message = error.response?.data?.message;
+
+      if (Array.isArray(message)) {
+        setErrorList(message);
+        setErrorMessage("");
       } else {
-        setErrorMessage(error.message || "Login failed. Please try again.");
+        setErrorMessage(message || error.message || "Login failed.");
+        setErrorList([]);
       }
     }
   };
@@ -65,10 +70,21 @@ export default function Login() {
               Welcome to Couponya
             </Typography>
 
-            {/* הודעת שגיאה מוצגת כאן */}
+            {/* הודעת שגיאה אחת */}
             {errorMessage && (
               <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
                 {errorMessage}
+              </Alert>
+            )}
+
+            {/* כמה הודעות שגיאה */}
+            {errorList.length > 0 && (
+              <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                  {errorList.map((err, idx) => (
+                    <li key={idx}>{err.msg || err}</li>
+                  ))}
+                </ul>
               </Alert>
             )}
 
