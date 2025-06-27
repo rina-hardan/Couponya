@@ -19,6 +19,8 @@ const ProfileDetails = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [regions, setRegions] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
+  const [logoFile, setLogoFile] = useState(null);
+
   const navigate = useNavigate();
 
   const isCustomer = user.role === "customer";
@@ -55,10 +57,10 @@ const ProfileDetails = () => {
       if (formData[key]) dataToSend.append(key, formData[key]);
     }
 
-    // צירוף הקובץ אם קיים
-    // if (logoFile) {
-    //   dataToSend.append("logo", logoFile);
-    // }
+   
+    if (logoFile) {
+      dataToSend.append("logo", logoFile);
+    }
 
     setErrorMessage("");
     setSuccessMessage("");

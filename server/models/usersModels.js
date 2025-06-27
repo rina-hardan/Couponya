@@ -1,26 +1,45 @@
 import DB from "../DB/DBconnection.js";
 
 const usersModel = {
-  register: async (userData) => {
-    const { name, userName, email, password, role, created_at } = userData;
-    try {
-      const [result] = await DB.query(
-        "INSERT INTO users (name, userName, email, role, created_at) VALUES (?, ?, ?, ?, ?)",
-        [name, userName, email, role, created_at]
-      );
+registerCustomerUser: async (data) => {
+  const {name,userName,email,password,birth_date,region_id,created_at} = data;
 
-      const userId = result.insertId;
+  const query = `
+    INSERT INTO users (name, userName, email, role, created_at)
+    VALUES (?, ?, ?, 'customer', ?);
+    INSERT INTO passwords (user_id, password)
+    VALUES (LAST_INSERT_ID(), ?);
+    INSERT INTO customers (customer_id, birth_date, region_id)
+    VALUES (LAST_INSERT_ID(), ?, ?);
+  `;
 
-      await DB.query(
-        "INSERT INTO passwords (user_id, password) VALUES (?, ?)",
-        [userId, password]
-      );
+  const params = [name,userName,email,created_at,password,birth_date,region_id];
+  const [result] = await DB.query(query, params);
+  const userId = result[0]?.insertId || result.insertId;
 
-      return userId;
-    } catch (err) {
-      throw err;
-    }
-  },
+  return { userId, userName, email, role: 'customer', name, birth_date, region_id};
+}
+,
+registerBusinessOwnerUser: async (data) => {
+  const { name, userName, email, password, business_name, description, website_url, logo_url, created_at } = data;
+
+  const query = `
+    INSERT INTO users (name, userName, email, role, created_at)
+    VALUES (?, ?, ?, 'business_owner', ?);
+    INSERT INTO passwords (user_id, password)
+    VALUES (LAST_INSERT_ID(), ?);
+    INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url)
+    VALUES (LAST_INSERT_ID(), ?, ?, ?, ?);
+  `;
+
+  const params = [name,userName,email,created_at,password,business_name,description,website_url,logo_url ];
+
+  const [result] = await DB.query(query, params);
+  const userId = result[0]?.insertId || result.insertId;
+
+  return {userId,userName,email,role: 'business_owner',name,business_name,description,website_url,logo_url};
+}
+,
 
   getUserByEmail: async (email) => {
     const query = `
@@ -62,33 +81,8 @@ const usersModel = {
     }
   }
   ,
-  registerBusinessOwner: async ({ userId, business_name, description, website_url, logo_url }) => {
-  try {
-    const [result] = await DB.query(
-      "INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url) VALUES (?, ?, ?, ?, ?)",
-      [userId, business_name, description, website_url, logo_url]
-    );
-    return { success: true };
-  } catch (err) {
-    console.error("Error in registerBusinessOwner:", err);
-    return { success: false, message: err };
-  }
-},
-  registerCustomer: async ({ userId, birth_date,region_id }) => {
-  try {
-    const [result] = await DB.query(
-      "INSERT INTO customers (customer_id, birth_date,region_id) VALUES (?, ?,?)",
-      [userId, birth_date, region_id]
-    );
-    return { success: true, points: result.points};
-  } catch (err) {
-    console.error("Error in registerCustomer:", err);
-    return { success: false, message: err };
-  }
-},
 updateUser: async (userId, data, userType) => {
   const conn = await DB.getConnection();
-
   try {
     await conn.beginTransaction();
 
