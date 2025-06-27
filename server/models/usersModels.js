@@ -1,26 +1,45 @@
 import DB from "../DB/DBconnection.js";
 
 const usersModel = {
-  register: async (userData) => {
-    const { name, userName, email, password, role, created_at } = userData;
-    try {
-      const [result] = await DB.query(
-        "INSERT INTO users (name, userName, email, role, created_at) VALUES (?, ?, ?, ?, ?)",
-        [name, userName, email, role, created_at]
-      );
+registerCustomerUser: async (data) => {
+  const {name,userName,email,password,birth_date,region_id,created_at} = data;
 
-      const userId = result.insertId;
+  const query = `
+    INSERT INTO users (name, userName, email, role, created_at)
+    VALUES (?, ?, ?, 'customer', ?);
+    INSERT INTO passwords (user_id, password)
+    VALUES (LAST_INSERT_ID(), ?);
+    INSERT INTO customers (customer_id, birth_date, region_id)
+    VALUES (LAST_INSERT_ID(), ?, ?);
+  `;
 
-      await DB.query(
-        "INSERT INTO passwords (user_id, password) VALUES (?, ?)",
-        [userId, password]
-      );
+  const params = [name,userName,email,created_at,password,birth_date,region_id];
+  const [result] = await DB.query(query, params);
+  const userId = result[0]?.insertId || result.insertId;
 
-      return userId;
-    } catch (err) {
-      throw err;
-    }
-  },
+  return { userId, userName, email, role: 'customer', name, birth_date, region_id};
+}
+,
+registerBusinessOwnerUser: async (data) => {
+  const { name, userName, email, password, business_name, description, website_url, logo_url, created_at } = data;
+
+  const query = `
+    INSERT INTO users (name, userName, email, role, created_at)
+    VALUES (?, ?, ?, 'business_owner', ?);
+    INSERT INTO passwords (user_id, password)
+    VALUES (LAST_INSERT_ID(), ?);
+    INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url)
+    VALUES (LAST_INSERT_ID(), ?, ?, ?, ?);
+  `;
+
+  const params = [name,userName,email,created_at,password,business_name,description,website_url,logo_url ];
+
+  const [result] = await DB.query(query, params);
+  const userId = result[0]?.insertId || result.insertId;
+
+  return {userId,userName,email,role: 'business_owner',name,business_name,description,website_url,logo_url};
+}
+,
 
   getUserByEmail: async (email) => {
     const query = `
@@ -62,59 +81,36 @@ const usersModel = {
     }
   }
   ,
-  registerBusinessOwner: async ({ userId, business_name, description, website_url, logo_url }) => {
-  try {
-    const [result] = await DB.query(
-      "INSERT INTO business_owners (business_owner_id, business_name, description, website_url, logo_url) VALUES (?, ?, ?, ?, ?)",
-      [userId, business_name, description, website_url, logo_url]
-    );
-    return { success: true };
-  } catch (err) {
-    console.error("Error in registerBusinessOwner:", err);
-    return { success: false, message: err };
-  }
-},
-  registerCustomer: async ({ userId, birth_date,region_id }) => {
-  try {
-    const [result] = await DB.query(
-      "INSERT INTO customers (customer_id, birth_date,region_id) VALUES (?, ?,?)",
-      [userId, birth_date, region_id]
-    );
-    return { success: true, points: result.points};
-  } catch (err) {
-    console.error("Error in registerCustomer:", err);
-    return { success: false, message: err };
-  }
-},
 updateUser: async (userId, data, userType) => {
   const conn = await DB.getConnection();
+  try {
+    await conn.beginTransaction();
 
-    try {
-      await conn.beginTransaction();
+    // עדכון בטבלת users
+    const userFields = ['name'];
+    const setUser = [];
+    const userValues = [];
 
-      const userFields = ['name'];
-      const setUser = [];
-      const userValues = [];
-
-      for (const key of userFields) {
-        if (data[key] !== undefined) {
-          setUser.push(`${key} = ?`);
-          userValues.push(data[key]);
-        }
+    for (const key of userFields) {
+      if (data[key] !== undefined) {
+        setUser.push(`${key} = ?`);
+        userValues.push(data[key]);
       }
+    }
 
-      if (setUser.length > 0) {
-        const userSql = `
+    if (setUser.length > 0) {
+      const userSql = `
         UPDATE users SET ${setUser.join(', ')}
         WHERE id = ?
       `;
-        userValues.push(userId);
-        await conn.query(userSql, userValues);
-      }
+      userValues.push(userId);
+      await conn.query(userSql, userValues);
+    }
 
-      let tableName;
-      let idColumn;
-      let profileFields = [];
+    // עדכון בטבלה הרלוונטית לפי תפקיד
+    let tableName;
+    let idColumn;
+    let profileFields = [];
 
     if (userType === 'customer') {
       tableName = 'customers';
@@ -128,37 +124,61 @@ updateUser: async (userId, data, userType) => {
       throw new Error("Invalid user type");
     }
 
-      const setProfile = [];
-      const profileValues = [];
+    const setProfile = [];
+    const profileValues = [];
 
-      for (const key of profileFields) {
-        if (data[key] !== undefined) {
-          setProfile.push(`${key} = ?`);
-          profileValues.push(data[key]);
-        }
+    for (const key of profileFields) {
+      if (data[key] !== undefined) {
+        setProfile.push(`${key} = ?`);
+        profileValues.push(data[key]);
       }
+    }
 
-      if (setProfile.length > 0) {
-        const profileSql = `
+    if (setProfile.length > 0) {
+      const profileSql = `
         UPDATE ${tableName}
         SET ${setProfile.join(', ')}
         WHERE ${idColumn} = ?
       `;
-        profileValues.push(userId);
-        await conn.query(profileSql, profileValues);
-      }
-
-      await conn.commit();
-      return { success: true };
-
-    } catch (err) {
-      await conn.rollback();
-      console.error("Error in updateUser:", err);
-      return { success: false, message: err.message };
-    } finally {
-      conn.release();
+      profileValues.push(userId);
+      await conn.query(profileSql, profileValues);
     }
-  },
+
+    await conn.commit();
+
+    // שליפה מחדש של המשתמש עם JOIN לפי התפקיד
+    let fullUser;
+    if (userType === 'customer') {
+      const [rows] = await conn.query(`
+        SELECT u.id, u.userName, u.name, u.email, u.role, u.created_at,
+               c.region_id, c.birth_date, c.points
+        FROM users u
+        JOIN customers c ON u.id = c.customer_id
+        WHERE u.id = ?
+      `, [userId]);
+      fullUser = rows[0];
+    } else if (userType === 'business_owner') {
+      const [rows] = await conn.query(`
+        SELECT u.id, u.userName, u.name, u.email, u.role, u.created_at,
+               b.business_name, b.description, b.website_url, b.logo_url
+        FROM users u
+        JOIN business_owners b ON u.id = b.business_owner_id
+        WHERE u.id = ?
+      `, [userId]);
+      fullUser = rows[0];
+    }
+
+    return { success: true, user: fullUser };
+
+  } catch (err) {
+    await conn.rollback();
+    console.error("Error in updateUser:", err);
+    return { success: false, message: err.message };
+  } finally {
+    conn.release();
+  }
+}
+,
 
 updateCustomerPoints: async (userId, points) => {
   try {

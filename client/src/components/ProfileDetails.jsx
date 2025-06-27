@@ -17,7 +17,10 @@ const ProfileDetails = () => {
   const user = JSON.parse(localStorage.getItem("currentUser")) || {};
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
+  const [regions, setRegions] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
+  const [logoFile, setLogoFile] = useState(null);
+
   const navigate = useNavigate();
 
   const isCustomer = user.role === "customer";
@@ -54,25 +57,23 @@ const ProfileDetails = () => {
       if (formData[key]) dataToSend.append(key, formData[key]);
     }
 
-    // צירוף הקובץ אם קיים
-    // if (logoFile) {
-    //   dataToSend.append("logo", logoFile);
-    // }
+   
+    if (logoFile) {
+      dataToSend.append("logo", logoFile);
+    }
 
     setErrorMessage("");
     setSuccessMessage("");
     try {
-      const result = await fetchFromServer("/users/update", "PUT", dataToSend);
-      alert("Updated successfully");
-      console.log("Update result:", result);
-      setSuccessMessage("Updated successfully");
-      console.log("Update result:", result);
-      const updatedUser = {
-        ...user,
-        ...dataToSend  
-      };
+       const result = await fetchFromServer("/users/update", "PUT", dataToSend);
+      
+      if (result.user) {
+        localStorage.setItem("currentUser", JSON.stringify(result.user));
+      }
 
-      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+      setSuccessMessage("Updated successfully");
+      alert("Updated successfully");
+
       if (user.role === "customer") {
         navigate("/CustomerHome");
       } else if (user.role === "business_owner") {

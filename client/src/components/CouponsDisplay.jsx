@@ -291,10 +291,10 @@ import { fetchFromServer } from "../api/ServerAPI";
 import { useLocation } from "react-router-dom";
 
 const sortOptions = [
-  { value: "price_asc", label: "מחיר - מהנמוך לגבוה" },
-  { value: "price_desc", label: "מחיר - מהגבוה לנמוך" },
-  { value: "date_desc", label: "החדש ביותר" },
-  { value: "date_asc", label: "הישן ביותר" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+  { value: "date_desc", label: "Newest First" },
+  { value: "date_asc", label: "Oldest First" },
 ];
 
 const CouponsDisplay = () => {
@@ -303,32 +303,23 @@ const CouponsDisplay = () => {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [categoryId, setCategoryId] = useState(location.state?.categoryId || 0);
   const [regionId, setRegionId] = useState(0);
-
   const [priceRangeInput, setPriceRangeInput] = useState([0, 1000]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000);
-
   const [sort, setSort] = useState("date_desc");
-
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-
   const [coupons, setCoupons] = useState([]);
-  const [offset, setOffset] = useState(0);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-
   const [loadingFilters, setLoadingFilters] = useState(true);
   const [loadingCoupons, setLoadingCoupons] = useState(false);
+  const [categoriesList, setCategoriesList] = useState([{ id: 0, name: "All Categories" }]);
+  const [regionsList, setRegionsList] = useState([{ id: 0, name: "All Regions" }]);
 
-  const [categoriesList, setCategoriesList] = useState([{ id: 0, name: "כל הקטגוריות" }]);
-  const [regionsList, setRegionsList] = useState([{ id: 0, name: "כל האזורים" }]);
-
-  const limit = 12;
 
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      setSearch(searchInput);
-    }, 500);
+    const delayDebounce = setTimeout(() => setSearch(searchInput), 500);
     return () => clearTimeout(delayDebounce);
   }, [searchInput]);
 
@@ -340,6 +331,7 @@ const CouponsDisplay = () => {
       console.error("Error fetching categories:", error);
     }
   };
+
 
   const fetchRegions = async () => {
     try {
@@ -364,7 +356,7 @@ const CouponsDisplay = () => {
           search,
           sort,
           limit,
-          offset: loadMore ? offset : 0,
+          page: loadMore ? page + 1 : 1,
         };
 
         Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
@@ -373,10 +365,10 @@ const CouponsDisplay = () => {
 
         if (loadMore) {
           setCoupons((prev) => [...prev, ...data]);
-          setOffset((prev) => prev + data.length);
+          setPage((prev) => prev + 1);
         } else {
           setCoupons(data);
-          setOffset(data.length);
+          setPage(1);
         }
 
         setHasMore(data.length === limit);
@@ -450,7 +442,7 @@ const CouponsDisplay = () => {
     setMaxPrice(1000);
     setSearchInput("");
     setSort("date_desc");
-    setOffset(0);
+    setPage(1);
     setHasMore(true);
   };
 
@@ -466,7 +458,7 @@ const CouponsDisplay = () => {
         </Box>
       ) : (
         <>
-          {!specialOnly && (
+          { (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4, alignItems: "center" }}>
               <FormControl sx={{ minWidth: 140 }}>
                 <InputLabel id="category-label">קטגוריה</InputLabel>
@@ -550,7 +542,7 @@ const CouponsDisplay = () => {
 
           {coupons.length === 0 && !loadingCoupons ? (
             <Typography variant="body1" sx={{ mt: 5, textAlign: "center" }}>
-              לא נמצאו קופונים מתאימים.
+              No matching coupons found.
             </Typography>
           ) : (
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 2 }}>
@@ -564,6 +556,12 @@ const CouponsDisplay = () => {
             <Box sx={{ textAlign: "center", mt: 3 }}>
               <CircularProgress />
             </Box>
+          )}
+
+          {!hasMore && (
+            <Typography variant="body2" sx={{ mt: 3, textAlign: "center", color: "gray" }}>
+              All coupons loaded.
+            </Typography>
           )}
         </>
       )}

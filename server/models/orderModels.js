@@ -37,19 +37,7 @@ const ordersModel = {
 //   );
 //   return orders;
 // }
-getOrdersByCustomerId: async ({ customerId, sort }) => {
-  let query = `
-    SELECT o.id as order_id, o.total_price, o.order_date,
-           oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price,
-           c.title as coupon_title
-    FROM orders o
-    LEFT JOIN order_items oi ON o.id = oi.order_id
-    LEFT JOIN coupons c ON oi.coupon_id = c.id
-    WHERE o.customer_id = ?
-  `;
-
-  const params = [customerId];
-
+getOrdersByCustomerId: async ({ customerId, sort, limit = 10, offset = 0 }) => {
   let sortField = "order_date";
   let sortDirection = "DESC";
 
@@ -67,32 +55,38 @@ getOrdersByCustomerId: async ({ customerId, sort }) => {
     }
   }
 
-  query += ` ORDER BY o.${sortField} ${sortDirection}`;
+  const query = `
+    SELECT 
+      o.id AS order_id,
+      o.total_price,
+      o.order_date,
+      JSON_ARRAYAGG(
+        JSON_OBJECT(
+          'coupon_id', oi.coupon_id,
+          'title', c.title,
+          'quantity', oi.quantity,
+          'price_per_unit', oi.price_per_unit,
+          'item_total_price', oi.total_price
+        )
+      ) AS items
+    FROM orders o
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    LEFT JOIN coupons c ON oi.coupon_id = c.id
+    WHERE o.customer_id = ?
+    GROUP BY o.id
+    ORDER BY o.${sortField} ${sortDirection}
+    LIMIT ? OFFSET ?
+  `;
 
-  const [rows] = await DB.query(query, params);
+  const [rows] = await DB.query(query, [customerId, parseInt(limit), parseInt(offset)]);
 
-  const ordersMap = {};
-  for (const row of rows) {
-    if (!ordersMap[row.order_id]) {
-      ordersMap[row.order_id] = {
-        id: row.order_id,
-        total_price: row.total_price,
-        order_date: row.order_date,
-        items: [],
-      };
-    }
-    ordersMap[row.order_id].items.push({
-      coupon_id: row.coupon_id,
-      title: row.coupon_title,
-      quantity: row.quantity,
-      price_per_unit: row.price_per_unit,
-      item_total_price: row.item_total_price,
-    });
-  }
-
-  return Object.values(ordersMap);
+  return rows.map(row => ({
+    id: row.order_id,
+    total_price: row.total_price,
+    order_date: row.order_date,
+    items: row.items
+  }));
 }
-
 };
 
 export default ordersModel;
