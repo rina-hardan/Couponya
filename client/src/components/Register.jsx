@@ -22,25 +22,25 @@ export default function Register() {
   const [logoFile, setLogoFile] = useState(null);
   const [regions, setRegions] = useState([]);
   const [errorMessage, setErrorMessage] = useState(""); // שגיאה שתוצג למשתמש
+  const [errorList, setErrorList] = useState([]);
 
-
-    const handleRegions = async () => {
-      try {
-        const response = await fetchFromServer("regions/", "GET");
-        setRegions(response.regions); // בהנחה ש־res מחזיר מערך של אזורים
-      } catch (err) {
-        console.error("Failed to fetch regions", err);
-      }
-    };
+  const handleRegions = async () => {
+    try {
+      const response = await fetchFromServer("regions/", "GET");
+      setRegions(response.regions); // בהנחה ש־res מחזיר מערך של אזורים
+    } catch (err) {
+      console.error("Failed to fetch regions", err);
+    }
+  };
 
   const navigate = useNavigate();
 
   const handleRoleChange = (e) => {
     const role = e.target.value;
     setIsCustomer(role === "customer");
-      if (role === "customer") {
-    handleRegions();
-  }
+    if (role === "customer") {
+      handleRegions();
+    }
   };
 
   const handleRegister = async (e) => {
@@ -51,13 +51,13 @@ export default function Register() {
     // if (!isCustomer && logoFile) {
     //   formData.append("logo", logoFile);
     // }
- 
+
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
 
     try {
-      setErrorMessage(""); 
+      setErrorMessage("");
 
       const result = await fetchFromServer("users/register", "POST", formData);
 
@@ -77,7 +77,16 @@ export default function Register() {
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage(err.message || "Registration failed");
+      if (Array.isArray(err?.response?.data?.message)) {
+        setErrorList(err.response.data.message);
+            setErrorMessage("");
+
+      } else {
+        setErrorMessage(err.message || "Registration failed");
+            setErrorList([]);
+
+      }
+   
     }
   };
 
@@ -97,10 +106,20 @@ export default function Register() {
               Create your account
             </Typography>
 
-            {/* הודעת שגיאה */}
             {errorMessage && (
               <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
                 {errorMessage}
+              </Alert>
+            )}
+           
+
+            {errorList.length > 0 && (
+              <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                  {errorList.map((err, idx) => (
+                    <li key={idx}>{err.msg || err}</li>
+                  ))}
+                </ul>
               </Alert>
             )}
 
@@ -131,7 +150,7 @@ export default function Register() {
                     fullWidth
                     name="region_id"
                     label="Region"
-                    required 
+                    required
                   >
                     {regions.map((region) => (
                       <MenuItem key={region.id} value={region.id}>

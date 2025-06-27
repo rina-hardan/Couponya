@@ -45,7 +45,11 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      setErrorMessage(error.message || "Login failed. Please try again.");
+      if (error.response && error.response.data && error.response.data.message) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage(error.message || "Login failed. Please try again.");
+      }
     }
   };
 
