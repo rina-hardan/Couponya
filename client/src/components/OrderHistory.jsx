@@ -18,7 +18,7 @@ export default function OrderHistory() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const limit = 5;
+  const limit = parseInt(import.meta.env.VITE_DEFAULT_LIMIT_ORDER, 10);
 
   const fetchOrders = async (selectedSort, pageToFetch = 1) => {
     setLoading(true);

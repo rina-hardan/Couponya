@@ -59,9 +59,9 @@ const usersController = {
 
       const registeredUser = { ...user };
       delete registeredUser.password;
-
+     
       const token = jwt.sign({ userId: user.id, role: user.role, email: user.email }, secretKey, { expiresIn: '1h' });
-
+      delete registeredUser.id;
       res.json({
         message: "Login successful",
         user: registeredUser,
@@ -75,7 +75,7 @@ const usersController = {
     }
   }
   ,
-  updateUser : async (req, res) => {
+  update : async (req, res) => {
   const userId = req.userId;
   const userType = req.role;
   const data = { ...req.body };
@@ -87,7 +87,8 @@ const usersController = {
   try {
     const result = await usersModel.updateUser(userId, data, userType);
     if (result.success) {
-      return res.status(200).json({ message: "User updated successfully", user: result.user });
+      const { id, ...publicUserData } = result.user;
+      return res.status(200).json({ message: "User updated successfully", user: publicUserData });
     }
     return res.status(400).json({ message: result.message });
   } catch (err) {

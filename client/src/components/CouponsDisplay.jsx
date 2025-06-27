@@ -299,7 +299,7 @@ const sortOptions = [
 
 const CouponsDisplay = () => {
   const location = useLocation();
-  const DEFAULT_LIMIT = import.meta.env.DEFAULT_LIMIT
+  const limit = parseInt(import.meta.env.VITE_DEFAULT_LIMIT_COUPON, 10);
   const specialOnly = location.state?.specialOnly || false;
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [categoryId, setCategoryId] = useState(location.state?.categoryId || 0);
@@ -364,14 +364,18 @@ const CouponsDisplay = () => {
         const data = await fetchFromServer(`/coupons?${queryString}`);
 
         if (loadMore) {
-          setCoupons((prev) => [...prev, ...data]);
+          setCoupons((prev) => {
+            const existingIds = new Set(prev.map(c => c.id));
+            const newCoupons = data.filter(c => !existingIds.has(c.id));
+            return [...prev, ...newCoupons];
+          });
           setPage((prev) => prev + 1);
         } else {
           setCoupons(data);
           setPage(1);
         }
 
-        setHasMore(data.length === DEFAULT_LIMIT);
+        setHasMore(data.length === limit);
       } catch (error) {
         console.error("Error fetching coupons:", error);
       } finally {
@@ -388,7 +392,7 @@ const CouponsDisplay = () => {
         birth_date: currentUser.birth_date,
         region_id: currentUser.region_id
       }
-      const data = await fetchFromServer("/coupons/recommendedCoupons","POST", params);
+      const data = await fetchFromServer("/coupons/recommendedCoupons", "POST", params);
       setCoupons(data.recommended);
       setHasMore(false); // אין אינסופיות ל"מומלצים"
     } catch (error) {
@@ -457,7 +461,7 @@ const CouponsDisplay = () => {
         </Box>
       ) : (
         <>
-          { (
+          {(
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4, alignItems: "center" }}>
               <FormControl sx={{ minWidth: 140 }}>
                 <InputLabel id="category-label">קטגוריה</InputLabel>

@@ -4,16 +4,18 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import BusinessCouponCard from "./BusinessCouponCard";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { fetchFromServer } from "../api/ServerAPI";
 
 export default function BusinessCouponsManager() {
+    const VITE_DEFAULT_LIMIT = parseInt(import.meta.env.VITE_DEFAULT_LIMIT, 10);
+
   const [coupons, setCoupons] = useState([]);
   const [status, setStatus] = useState("");
   const [isActive, setIsActive] = useState("");
   const [sortBy, setSortBy] = useState("expiry_date");
   const [sortOrder, setSortOrder] = useState("ASC");
-  const [offset, setOffset] = useState(0);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -29,18 +31,23 @@ export default function BusinessCouponsManager() {
       if (isActive !== "") query.append("isActive", isActive);
       query.append("sortBy", sortBy);
       query.append("sortOrder", sortOrder);
-      query.append("limit", 10);
-      query.append("offset", isNew ? 0 : offset);
+      query.append("limit", VITE_DEFAULT_LIMIT);
+      query.append("page", isNew ? 1 : page);
 
       const data = await fetchFromServer(`/coupons/BusinessOwnerCoupons?${query}`);
+
       if (isNew) {
         setCoupons(data);
-        setOffset(10);
+        setPage(2); 
         setHasMore(data.length === 10);
       } else {
-        setCoupons((prev) => [...prev, ...data]);
-        setOffset((prev) => prev + 10);
-        if (data.length < 10) setHasMore(false);
+        setCoupons((prev) => {
+          const existingIds = new Set(prev.map(c => c.id));
+          const newCoupons = data.filter(c => !existingIds.has(c.id));
+          setHasMore(data.length === 10 && newCoupons.length > 0);
+          return [...prev, ...newCoupons];
+        });
+        setPage((prev) => prev + 1);
       }
     } catch (err) {
       console.error("Error loading coupons", err);
@@ -50,9 +57,11 @@ export default function BusinessCouponsManager() {
   };
 
   useEffect(() => {
+    setPage(1);
     fetchCoupons(true);
   }, [status, isActive, sortBy, sortOrder]);
 
+  // גלילה אינסופית
   useEffect(() => {
     const handleScroll = () => {
       if (

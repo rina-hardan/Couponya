@@ -186,11 +186,13 @@ const couponsModel = {
     const [result] = await DB.query(sql, [couponId]);
     return result.affectedRows > 0;
   },
+
   async getUnConfirmedCoupons() {
     const sql = `SELECT * FROM coupons WHERE status = 'pending'`;
     const [results] = await DB.query(sql);
     return results;
   },
+  
   async getCouponsByAge(minAge, maxAge) {
     const [rows] = await DB.query(`
       SELECT c.*, business_owners.logo_url, business_owners.business_name,
