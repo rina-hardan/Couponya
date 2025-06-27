@@ -6,11 +6,6 @@ const cartController = {
     try {
       const { couponId, quantity, pricePerUnit,title } = req.body;
       const userId = req.userId; // אנחנו מקבלים את ה- userId מתוך הטוקן
-
-      if (!couponId || !quantity) {
-        return res.status(400).json({ message: "couponId and quantity are required" });
-      }
-
       const result = await cartModel.addToCart(userId, couponId, quantity, pricePerUnit,title);
 
       if (result.success) {
@@ -44,8 +39,8 @@ const cartController = {
     try {
       const { couponId } = req.body;
        const userId = req.userId;
-      if (!userId || !couponId) {
-        return res.status(400).json({ message: "userId and couponId are required" });
+      if (!userId ) {
+        return res.status(400).json({ message: "userId is required" });
       }
 
       const result = await cartModel.removeFromCart(userId, couponId);
@@ -65,12 +60,6 @@ const cartController = {
       const { couponId, quantity } = req.body; // קבלת couponId וכמות מעודכנת מה-body של הבקשה
       const userId = req.userId; // קבלת userId מתוך הטוקן (המשתמש המחובר)
 
-      // וידוא שהמשתמש שלח את הנתונים הדרושים
-      if (!couponId || !quantity) {
-        return res.status(400).json({ message: "couponId and quantity are required" });
-      }
-
-      // קריאה ל-model לעדכון הכמות
       const result = await cartModel.updateItemQuantity(userId, couponId, quantity);
 
       if (result.success) {

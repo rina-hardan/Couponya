@@ -1,3 +1,4 @@
+import e from "express";
 import couponsModel from "../models/couponModels.js";
 import usersModel from "../models/usersModels.js";
 import { calculateAge, mergeAndRankCoupons } from "../utils/helpers.js";
@@ -174,12 +175,11 @@ const couponsController = {
     }
   },
   getRecommendedCoupons: async (req, res) => {
-    const email = req.email;
 
       const {birth_date,region_id} = req.body;
 
       if (!birth_date) {
-        return res.status(400).json({ error: "Birth date is missing" });
+        return res.status(400).json({ message: "Birth date is missing" });
       }
 
     try {
@@ -197,7 +197,7 @@ const couponsController = {
 
     } catch (error) {
       console.error("Error in getRecommended:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Internal server error"+error.message });
     }
   }
 };
