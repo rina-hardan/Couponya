@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchFromServer } from "../api/ServerAPI";
 import logo from "../pic/logo.png";
@@ -20,6 +20,11 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState("");
   const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.clear();
+    window.history.replaceState(null, "", window.location.href);
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();

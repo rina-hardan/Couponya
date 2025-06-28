@@ -90,3 +90,20 @@
   font-weight: 600;
   color: #333;
 }
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://cdn.pixabay.com/photo/2016/03/31/19/56/confetti-1292684_960_720.png");
+  background-size: cover;
+  animation: fall 3s ease-in-out infinite;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@keyframes fall {
+  0% { transform: translateY(-20px); }
+  100% { transform: translateY(40px); }
+}
