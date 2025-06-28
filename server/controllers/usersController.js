@@ -75,7 +75,7 @@ const usersController = {
     }
   }
   ,
-  update : async (req, res) => {
+  updateUser : async (req, res) => {
   const userId = req.userId;
   const userType = req.role;
   const data = { ...req.body };
