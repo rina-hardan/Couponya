@@ -5,10 +5,6 @@ const regionsController = {
  addRegion: async (req, res) => {
   try {
     const {name } = req.body;
-
-    if (!name ) {
-      return res.status(400).json({ error: "name of region is required" });
-    }
        const img_url = req.file ? `/uploads/${req.file.filename}` : null;
 
       const returnedData = await regionsModel.addRegion({ name, img_url });

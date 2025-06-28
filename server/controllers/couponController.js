@@ -8,50 +8,48 @@ const couponsController = {
     try {
 
       const couponData = req.body;
-      couponData.business_owner_id = req.userId; // Assuming userId is the business owner's ID
+      couponData.business_owner_id = req.userId;
       const newCoupon = await couponsModel.create(couponData);
       res.status(201).json(newCoupon);
     } catch (error) {
-      res.status(500).json({ message: "Error creating coupon"+ error.message });
+      res.status(500).json({ message: "Error creating coupon" + error.message });
     }
   },
- getAllActiveCoupons: async (req, res) => {
-  try {
-    let {
-      categoryId,
-      regionId,
-      minPrice,
-      maxPrice,
-      search,
-      sort = "expiry_date_asc",
-      page,
-      limit
-    } = req.query;
+  getAllActiveCoupons: async (req, res) => {
+    try {
+      let {
+        categoryId,
+        regionId,
+        minPrice,
+        maxPrice,
+        search,
+        sort = "expiry_date_asc",
+        page,
+        limit
+      } = req.query;
 
-    // המרה לערכים מספריים עם ערכי ברירת מחדל
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
-    const offset = (page - 1) * limit;
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 12;
+      const offset = (page - 1) * limit;
 
-    // שליחת הבקשה למודל עם הפרמטרים
-    const coupons = await couponsModel.getAllActive({
-      categoryId,
-      regionId,
-      minPrice,
-      maxPrice,
-      search,
-      sort,
-      limit,
-      offset
-    });
+      const coupons = await couponsModel.getAllActive({
+        categoryId,
+        regionId,
+        minPrice,
+        maxPrice,
+        search,
+        sort,
+        limit,
+        offset
+      });
 
-    res.status(200).json(coupons);
-  } catch (error) {
-    console.error("Error retrieving active coupons:", error);
-    res.status(500).json({ message: "Error retrieving active coupons: " + error.message });
+      res.status(200).json(coupons);
+    } catch (error) {
+      console.error("Error retrieving active coupons:", error);
+      res.status(500).json({ message: "Error retrieving active coupons: " + error.message });
+    }
   }
-}
-,
+  ,
 
   getCouponById: async (req, res) => {
     try {
@@ -63,7 +61,7 @@ const couponsController = {
         res.status(404).json({ message: "Coupon not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving coupon"+ error.message });
+      res.status(500).json({ message: "Error retrieving coupon" + error.message });
     }
   },
 
@@ -84,17 +82,9 @@ const couponsController = {
         "is_active"
       ];
 
-      const requiredFields = ["title", "discounted_price", "quantity","original_price",
+      const requiredFields = ["title", "discounted_price", "quantity", "original_price",
         "expiry_date", "category_id", "region_id"];
 
-      for (const field of requiredFields) {
-        if (
-          incomingData.hasOwnProperty(field) &&
-          (incomingData[field] === "" || incomingData[field] === null)
-        ) {
-          return res.status(400).json({ message: `Field '${field}' cannot be empty` });
-        }
-      }
 
       const filteredData = {};
       for (const [key, value] of Object.entries(incomingData)) {
@@ -109,6 +99,7 @@ const couponsController = {
 
 
       }
+     
       const updated = await couponsModel.update(id, filteredData);
       if (updated) {
         res.status(200).json({ message: "Coupon updated successfully" });
@@ -116,23 +107,10 @@ const couponsController = {
         res.status(404).json({ message: "Coupon not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Error updating coupon"+ error.message });
+      res.status(500).json({ message: "Error updating coupon" + error.message });
     }
   },
 
-  deleteCoupon: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const deleted = await couponsModel.delete(id);
-      if (deleted) {
-        res.status(200).json({ message: "Coupon deleted successfully" });
-      } else {
-        res.status(404).json({ message: "Coupon not found" });
-      }
-    } catch (error) {
-      res.status(500).json({ message: "Error deleting coupon"+ error.message });
-    }
-  },
 
   getCouponsByBusinessOwnerId: async (req, res) => {
     try {
@@ -154,7 +132,7 @@ const couponsController = {
 
       res.status(200).json(coupons);
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving coupons for business owner"+ error.message });
+      res.status(500).json({ message: "Error retrieving coupons for business owner" + error.message });
     }
   }
   ,
@@ -168,7 +146,7 @@ const couponsController = {
         res.status(404).json({ message: "Coupon not found or already confirmed" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Error confirming coupon"+error.message });
+      res.status(500).json({ message: "Error confirming coupon" + error.message });
     }
   },
   getUnConfirmedCoupons: async (req, res) => {
@@ -176,19 +154,15 @@ const couponsController = {
       const coupons = await couponsModel.getUnConfirmedCoupons();
       res.status(200).json(coupons);
     } catch (error) {
-      res.status(500).json({ message: "Error retrieving unconfirmed coupons"+ error.message });
+      res.status(500).json({ message: "Error retrieving unconfirmed coupons" + error.message });
     }
   },
   getRecommendedCoupons: async (req, res) => {
 
-      const {birth_date,region_id} = req.body;
-
-      if (!birth_date) {
-        return res.status(400).json({ message: "Birth date is missing" });
-      }
+    const { birth_date, region_id } = req.body;
 
     try {
-    
+
       const age = calculateAge(birth_date);
 
 
@@ -202,7 +176,7 @@ const couponsController = {
 
     } catch (error) {
       console.error("Error in getRecommended:", error);
-      res.status(500).json({ message: "Internal server error"+error.message });
+      res.status(500).json({ message: "Internal server error" + error.message });
     }
   }
 };

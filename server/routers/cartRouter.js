@@ -1,4 +1,3 @@
-// cartRouter.js
 import express from "express";
 import cartController from "../controllers/cartController.js";
 import { verifyToken } from "../middleware/auth.js";

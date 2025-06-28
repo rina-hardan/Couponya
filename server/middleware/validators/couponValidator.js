@@ -115,3 +115,12 @@ export const couponIdValidator = [
   param("id")
     .isInt({ gt: 0 }).withMessage("Coupon ID must be a positive integer")
 ];
+export const recommendedCouponsValidator = [
+  body("birth_date")
+    .notEmpty().withMessage("birth_date is required")
+    .isISO8601().withMessage("birth_date must be a valid date"),
+
+  body("region_id")
+    .optional({ nullable: true })
+    .isInt({ gt: 0 }).withMessage("region_id must be a positive integer"),
+];

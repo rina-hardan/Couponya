@@ -79,11 +79,10 @@ export async function fetchFromServer(endpoint, method = "GET", body = null) {
       console.error("Unauthorized access - redirecting to login");
       localStorage.clear();
       alert("Unauthorized access - redirecting to login");
-      window.location.href = "/login";
+      window.location.replace("/login");
       return;
     }
 
-    // אל תזרוק new Error כדי לא לאבד מידע חשוב (כמו מערך הודעות)
     throw error;
   }
 }

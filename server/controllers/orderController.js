@@ -10,9 +10,6 @@ const ordersController = {
     const { items, usePoints } = req.body;
     const customerId = req.userId;
     const customerEmail = req.email;
-    if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ message: "Missing required data" });
-    }
     const customer = await usersModel.getUserByEmail(customerEmail);
     const connection = await DB.getConnection();
     try {
@@ -54,8 +51,6 @@ const ordersController = {
 
         await ordersModel.bulkAddOrderItems(orderItems, connection);
         await couponsModel.updateCouponQuantities(items, connection);
-        // await ordersModel.updateCustomerPoints(customerId, updatedPoints, connection);
-        // לסיים את הטרנזקציה
         await connection.commit();
         const couponIds = items.map(item => item.couponId);
         const coupons = await couponsModel.getCouponsByIds(couponIds);
@@ -93,9 +88,6 @@ const ordersController = {
   getOrdersByCustomer: async (req, res) => {
     try {
       const customerId = req.userId;
-      if (!customerId) {
-        return res.status(400).json({ error: "Missing customer ID" });
-      }
       const {
         sort = "order_date_desc",
         page = 1,
@@ -110,9 +102,6 @@ const ordersController = {
         limit: parseInt(limit),
         offset: parseInt(offset)
       });
-
-      // const orders = await ordersModel.getOrdersByCustomerId(customerId);
-
       res.json({ orders });
     } catch (error) {
       console.error("Error getting orders:", error);

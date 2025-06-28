@@ -1,4 +1,3 @@
-// cartModel.js
 import DB from "../DB/DBconnection.js";
 
 const cartModel = {
@@ -10,7 +9,7 @@ const cartModel = {
     if (existingItem.length > 0) {
       const newQuantity = existingItem[0].quantity + quantity;
       const updateSql = `UPDATE cart_items SET quantity = ?, price_per_unit = ? WHERE user_id = ? AND coupon_id = ?`;
-      await DB.query(updateSql, [newQuantity, pricePerUnit, userId, couponId]); // עדכון גם את המחיר במקרה של עדכון כמות
+      await DB.query(updateSql, [newQuantity, pricePerUnit, userId, couponId]); 
       return { success: true, message: "Quantity updated successfully" };
     } else {
       const insertSql = `INSERT INTO cart_items (user_id, coupon_id, quantity, price_per_unit, title) 
@@ -27,7 +26,7 @@ const cartModel = {
 
  getCartItems: async (userId) => {
   try {
-    console.log("Fetching cart items for user:", userId); // הדפסת פרטי הבקשה
+    console.log("Fetching cart items for user:", userId);
     const sql = `SELECT * FROM cart_items WHERE user_id = ?`;
     const [rows] = await DB.query(sql, [userId]);
     return rows;
@@ -57,7 +56,6 @@ const cartModel = {
       return { success: false, message: err.message };
     }
   },
-  // קבלת המחיר המוזל של קופון
   getCouponPrice: async (couponId) => {
     try {
       const sql = `SELECT price_per_unit FROM coupons WHERE id = ?`;

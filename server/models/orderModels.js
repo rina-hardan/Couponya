@@ -25,18 +25,6 @@ const ordersModel = {
       [orderItems]
     );
   },
-// getOrdersByCustomerId: async (customerId) => {
-//   const [orders] = await DB.query(
-//     `SELECT o.order_id, o.total_price, o.order_date, o.status,
-//             oi.coupon_id, oi.quantity, oi.price_per_unit, oi.total_price as item_total_price
-//      FROM orders o
-//      LEFT JOIN order_items oi ON o.order_id = oi.order_id
-//      WHERE o.customer_id = ?
-//      ORDER BY o.order_date DESC`,
-//     [customerId]
-//   );
-//   return orders;
-// }
 getOrdersByCustomerId: async ({ customerId, sort, limit = 10, offset = 0 }) => {
   let sortField = "order_date";
   let sortDirection = "DESC";

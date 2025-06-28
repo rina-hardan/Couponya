@@ -29,7 +29,7 @@ export default function CustomerHome() {
   const [cartPopoverOpen, setCartPopoverOpen] = useState(false);
   const [usePoints, setUsePoints] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-    const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
+  const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
 
   const [showBirthdayPopup, setShowBirthdayPopup] = useState(false);
   const [hasBirthdayDiscount, setHasBirthdayDiscount] = useState(false);
@@ -66,7 +66,7 @@ export default function CustomerHome() {
   const handleLogout = () => {
     handleClose();
     localStorage.clear();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
   const handleCartClick = () => {
     loadCartItems();
@@ -89,7 +89,7 @@ export default function CustomerHome() {
       setCartItems(prevItems => prevItems.filter(item => item.coupon_id !== itemId));
     } catch (error) {
       console.error("Failed to remove item", error);
-        const message = error.response?.data?.message;
+      const message = error.response?.data?.message;
 
       if (Array.isArray(message)) {
         setErrorList(message);
