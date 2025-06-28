@@ -18,7 +18,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
+  const [errorList, setErrorList] = useState([]); 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {

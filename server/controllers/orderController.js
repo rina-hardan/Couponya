@@ -8,7 +8,6 @@ import cartModel from "../models/cartModel.js";
 const ordersController = {
   createOrder: async (req, res) => {
     const { items, usePoints } = req.body;
-
     const customerId = req.userId;
     const customerEmail = req.email;
     if (!customerId || !items || !Array.isArray(items) || items.length === 0) {

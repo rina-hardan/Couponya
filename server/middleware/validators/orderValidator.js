@@ -14,7 +14,7 @@ export const createOrderValidator = [
 
   body("items.*.pricePerUnit")
     .notEmpty().withMessage("pricePerUnit is required")
-    .isFloat({ gt: 0 }).withMessage("pricePerUnit must be a positive number"),
+    .isFloat({ gte: 0 }).withMessage("pricePerUnit must be a positive number"),
 
   body("usePoints")
     .optional()

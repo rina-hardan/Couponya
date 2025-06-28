@@ -40,6 +40,8 @@ export default function CouponForm() {
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [errorList, setErrorList] = useState([]);
+
   const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
@@ -122,15 +124,31 @@ export default function CouponForm() {
           await fetchFromServer(`/coupons/${initialData.id}`, "PUT", formData);
         } catch (error) {
           console.error("Error updating coupon:", error);
-          setError("Failed to update coupon.");
+          const message = error.response?.data?.message;
+
+          if (Array.isArray(message)) {
+            setErrorList(message);
+            setError("");
+          } else {
+            setError(message || error.message || "Login failed.");
+            setErrorList([]);
+          }
           return;
         }
       } else {
         try {
           await fetchFromServer("/coupons/create", "POST", formData);
         } catch (error) {
+          const message = error.response?.data?.message;
+
+          if (Array.isArray(message)) {
+            setErrorList(message);
+            setError("");
+          } else {
+            setError(message || error.message || "Login failed.");
+            setErrorList([]);
+          }
           console.error("Error creating coupon:", error);
-          setError("Failed to create coupon.");
           return;
         }
       }
@@ -138,6 +156,7 @@ export default function CouponForm() {
       navigate("/BusinessOwnerHome");
     } catch (err) {
       console.error("Submit failed:", err);
+
       setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -152,12 +171,20 @@ export default function CouponForm() {
         </Typography>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {Object.keys(fieldErrors).length > 0 && (
+        {/* {Object.keys(fieldErrors).length > 0 && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             Please fill in all required fields.
           </Alert>
+        )} */}
+        {errorList.length > 0 && (
+          <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+            <ul style={{ margin: 0, paddingLeft: "20px" }}>
+              {errorList.map((err, idx) => (
+                <li key={idx}>{err.msg || err}</li>
+              ))}
+            </ul>
+          </Alert>
         )}
-
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
             label="Title"

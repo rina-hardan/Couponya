@@ -259,6 +259,8 @@ export default function CustomerHome() {
   const navigate = useNavigate();
   const [usePoints, setUsePoints] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+    const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
+
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const open = Boolean(anchorEl);
 
@@ -305,6 +307,15 @@ export default function CustomerHome() {
       setCartItems(prevItems => prevItems.filter(item => item.coupon_id !== itemId));
     } catch (error) {
       console.error("Failed to remove item", error);
+        const message = error.response?.data?.message;
+
+      if (Array.isArray(message)) {
+        setErrorList(message);
+        setErrorMessage("");
+      } else {
+        setErrorMessage(message || error.message || "Login failed.");
+        setErrorList([]);
+      }
     }
   };
 
@@ -418,6 +429,15 @@ export default function CustomerHome() {
             }}
           >
             <Typography sx={{ p: 2 }}>Your Cart</Typography>
+            {errorList.length > 0 && (
+              <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                  {errorList.map((err, idx) => (
+                    <li key={idx}>{err.msg || err}</li>
+                  ))}
+                </ul>
+              </Alert>
+            )}
             {cartItems.length > 0 ? (
               <List>
                 {cartItems.map((item) => (

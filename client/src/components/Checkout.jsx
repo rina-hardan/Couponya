@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-import { TextField, Box, Typography, Button } from "@mui/material"; // הוספתי את ה-importים החסרים
+import { TextField, Box, Typography, Button, Alert } from "@mui/material"; // הוספתי את ה-importים החסרים
 import { fetchFromServer } from "../api/ServerAPI"; // פונקציה לשליחת בקשות לשרת
 export default function Checkout() {
   const location = useLocation();
@@ -10,6 +10,8 @@ export default function Checkout() {
   const [expirationDate, setExpirationDate] = useState("");
   const [cvv, setCvv] = useState("");
   const [error, setError] = useState("");
+  const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
+
   const [usePoints, setUsePoints] = useState(false);
   const navigate = useNavigate();
 
@@ -21,10 +23,42 @@ export default function Checkout() {
     }
     return true;
   };
+  const validateExpirationDate = () => {
+    const regex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+    if (!regex.test(expirationDate)) {
+      setError("Expiration date must be in MM/YY format.");
+      return false;
+    }
 
+    const [month, year] = expirationDate.split("/").map(Number);
+    const now = new Date();
+    const currentYear = now.getFullYear() % 100; // last 2 digits
+    const currentMonth = now.getMonth() + 1;
+
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      setError("Card has expired.");
+      return false;
+    }
+
+    return true;
+  };
+  const validateCVV = () => {
+    const cvvRegex = /^[0-9]{3,4}$/;
+    if (!cvvRegex.test(cvv)) {
+      setError("CVV must be 3 or 4 digits.");
+      return false;
+    }
+    return true;
+  };
   const handleCheckout = async () => {
-    if (!validateCreditCard()) return;
+    setError("");
+    setErrorList([]);
 
+    if (
+      !validateCreditCard() ||
+      !validateExpirationDate() ||
+      !validateCVV()
+    ) return;
     console.log("Cart Items:", cartItems);
     const items = cartItems.map(item => ({
       couponId: item.coupon_id,
@@ -46,10 +80,19 @@ export default function Checkout() {
         currentUser.points = response.updatedPoints;
         localStorage.setItem("currentUser", JSON.stringify(currentUser));
       }
-      navigate("/CustomerHome"); // חזרה לעמוד הבית
+      navigate("/CustomerHome");
     } catch (error) {
+
       console.error("Error creating order:", error);
-      alert("Something went wrong. Please try again later.");
+      const message = error.response?.data?.message;
+
+      if (Array.isArray(message)) {
+        setErrorList(message);
+        setError("");
+      } else {
+        setError(message || error.message || "Login failed.");
+        setErrorList([]);
+      }
     }
   };
 
@@ -58,7 +101,17 @@ export default function Checkout() {
       <Typography variant="h6" gutterBottom>
         Checkout
       </Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
+      {errorList.length > 0 && (
+        <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+          <ul style={{ margin: 0, paddingLeft: "20px" }}>
+            {errorList.map((err, idx) => (
+              <li key={idx}>{err.msg || err}</li>
+            ))}
+          </ul>
+        </Alert>
+      )}
       <TextField
         label="Credit Card Number"
         variant="outlined"

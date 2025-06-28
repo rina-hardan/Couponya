@@ -17,7 +17,8 @@ const UnconfirmedCoupons = () => {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(""); // הודעת שגיאה
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorList, setErrorList] = useState([]);
 
   const fetchUnconfirmed = async () => {
     setLoading(true);
@@ -40,7 +41,15 @@ const UnconfirmedCoupons = () => {
       setCoupons((prev) => prev.filter((c) => c.id !== couponId));
     } catch (error) {
       console.error("Error confirming coupon:", error);
-      setErrorMessage(error.message || "Failed to confirm the coupon");
+      const message = error.response?.data?.message;
+
+      if (Array.isArray(message)) {
+        setErrorList(message);
+        setErrorMessage("");
+      } else {
+        setErrorMessage(message || error.message || "Login failed.");
+        setErrorList([]);
+      }
     }
     setConfirming(null);
   };
@@ -58,6 +67,15 @@ const UnconfirmedCoupons = () => {
       {errorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {errorMessage}
+        </Alert>
+      )}
+      {errorList.length > 0 && (
+        <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+          <ul style={{ margin: 0, paddingLeft: "20px" }}>
+            {errorList.map((err, idx) => (
+              <li key={idx}>{err.msg || err}</li>
+            ))}
+          </ul>
         </Alert>
       )}
 

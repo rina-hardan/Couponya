@@ -49,8 +49,8 @@ const Coupon = () => {
       const response = await fetchFromServer("cart/add", "POST", {
         couponId: coupon.id, quantity: quantity, title: coupon.title, pricePerUnit: coupon.discounted_price
       })
-      
-    navigate("/CustomerHome");
+
+      navigate("/CustomerHome");
     } catch (error) { console.error("Error adding to cart:", error); alert("Failed to add coupon to cart. Please try again later."); }
   };
   return (
@@ -180,9 +180,10 @@ const Coupon = () => {
           </Grid>
         </Grid>
 
-          <Box textAlign="center" mt={5}>
-  
-          <Button variant="contained" color="primary" size="large" onClick={() => handleAddToCart(coupon)}>
+        <Box textAlign="center" mt={5}>
+
+          <Button variant="contained" color="primary" size="large" onClick={() => handleAddToCart(coupon)} disabled={coupon.quantity === 0}
+          >
             הוסף לסל
           </Button>
         </Box>
