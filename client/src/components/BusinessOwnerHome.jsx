@@ -13,7 +13,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 export default function BusinessOwnerHome() {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const navigate = useNavigate();
 
   const handleClick = (e) => setAnchorEl(e.currentTarget);
@@ -26,34 +26,36 @@ export default function BusinessOwnerHome() {
   };
 
   return (
-    <div className="home-page">
-      <div className="home-wrapper">
-        <header className="home-header">
-          <img src={logo} alt="Couponya Logo" className="home-logo" />
+    <div className="home-contianer">
+      <div className="home-page">
+        <div className="home-wrapper">
+          <header className="home-header">
+            <img src={logo} alt="Couponya Logo" className="home-logo" />
 
-          <Box className="profile-section">
-            <IconButton onClick={handleClick}>
-              <BusinessCenterIcon sx={{ mr: 1 }} />
-              <Typography>Hello {currentUser?.userName}</Typography>
-            </IconButton>
+            <Box className="profile-section">
+              <IconButton onClick={handleClick}>
+                <BusinessCenterIcon sx={{ mr: 1 }} />
+                <Typography>{currentUser?.userName}</Typography>
+              </IconButton>
 
-            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-              <MenuItem onClick={() => navigate("/profile")}>
-                <AccountCircleIcon sx={{ mr: 1 }} />
-                Personal Details
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1 }} />
-                Logout
-              </MenuItem>
-            </Menu>
-          </Box>
-        </header>
+              <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <MenuItem onClick={() => navigate("/profile")}>
+                  <AccountCircleIcon sx={{ mr: 1 }} />
+                  Personal Details
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1 }} />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
+          </header>
 
-        <main className="main-content">
-          <Outlet />
-        </main>
+          <main className="main-content">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

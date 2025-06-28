@@ -1,17 +1,19 @@
 .profile-page {
+  display: flex;
+  justify-content: center;       /* מרכז לרוחב */
+  align-items: start;            /* מתחיל מגובה עליון */
+  min-height: 100vh;             /* תופס את כל הגובה */
+  background: linear-gradient(to bottom, #fffef5, #ffffff);
+  padding: 40px 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 0;  
+  right: 0; 
   bottom: 0;
-/* background-color: #12002b; */
-  background: linear-gradient(to bottom, #fffef5, #ffffff);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
+  z-index: 10;                   /* לוודא שזה מעל כל תוכן אחר */
 }
-
 
 .profile-container {
   background-color: #ffffff;
@@ -19,32 +21,8 @@
   margin-top: 50px;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.profile-title {
-  text-align: center;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.save-button {
-  background-color: #052d56;
-  color: white;
-  font-weight: bold;
-  margin-top: 20px;
-  transition: 0.3s ease;
-}
-
-.save-button:hover {
-  background-color: #052d56;
-}
-.profile-container {
-  background-color: #ffffff;
-  padding: 30px;
-  margin-top: 50px;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
 }
 
 .profile-title {

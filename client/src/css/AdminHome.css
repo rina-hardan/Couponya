@@ -1,0 +1,27 @@
+ .home-page {
+  background: linear-gradient(to bottom, #fffef5, #ffffff);
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+
+.home-wrapper {
+  width: 100%;
+  margin: 0;
+  padding-bottom: 60px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.home-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100vw; /* לא 100% אלא 100vw = כל רוחב המסך */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}

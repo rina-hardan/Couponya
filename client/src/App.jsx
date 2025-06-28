@@ -32,8 +32,8 @@ function App() {
           <Route path="coupon/:id" element={<Coupon />} />
         </Route>
         <Route path="/AdminHome" element={<AdminHome />}>
-          <Route path="unconfirmed-coupons" element={<UnconfirmedCoupons />} />
-          <Route path="manage-categories" element={<ManageCategories />} />
+          <Route index path="unconfirmed-coupons" element={<UnconfirmedCoupons />} />
+          <Route  path="manage-categories" element={<ManageCategories />} />
         </Route>
         <Route path="/BusinessOwnerHome" element={<BusinessOwnerHome />} >
          <Route index element={<BusinessCouponsManager />} />

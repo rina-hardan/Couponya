@@ -136,7 +136,7 @@ const ProfileDetails = () => {
 
   return (
    <div className="profile-page">
-  <Container maxWidth="sm">
+  <Container maxWidth="sm" >
     <Box className="profile-container">
         <Typography variant="h4" className="profile-title" gutterBottom>
           My Profile
