@@ -394,7 +394,7 @@ const CouponsDisplay = () => {
       }
       const data = await fetchFromServer("/coupons/recommendedCoupons", "POST", params);
       setCoupons(data.recommended);
-      setHasMore(false); // אין אינסופיות ל"מומלצים"
+      setHasMore(false);
     } catch (error) {
       console.error("Error fetching special coupons:", error);
     } finally {

@@ -42,20 +42,76 @@ export default function Register() {
       handleRegions();
     }
   };
+  const validateForm = (formData, isCustomer, logoFile) => {
+    let errors = [];
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const getField = (name) => formData.get(name)?.trim();
+
+    const userName = getField("userName");
+    const name = getField("name");
+    const email = getField("email");
+    const password = getField("password");
+    const role = getField("role");
+    const website_url = getField("website_url");
+
+    if (!userName) errors.push({ msg: "Username is required" });
+    if (!name) errors.push({ msg: "Full name is required" });
+    if (!email || !emailRegex.test(email)) errors.push({ msg: "Valid email is required" });
+    if (!password || password.length < 6) errors.push({ msg: "Password must be at least 6 characters" });
+    if (!["customer", "business_owner"].includes(role))
+      errors.push({ msg: "Role must be customer or business_owner" });
+
+    if (isCustomer) {
+      const birth_date = getField("birth_date");
+      const region_id = getField("region_id");
+
+      if (!birth_date) {
+        errors.push({ msg: "Birth date is required" });
+      } else if (isNaN(Date.parse(birth_date))) {
+        errors.push({ msg: "Birth date must be a valid date" });
+      }
+
+      if (!region_id || isNaN(region_id) || parseInt(region_id) <= 0) {
+        errors.push({ msg: "Region ID must be a positive number" });
+      }
+    }
+
+    if (!isCustomer) {
+      const business_name = getField("business_name");
+      const description = getField("description");
+
+      if (!business_name) errors.push({ msg: "Business name is required" });
+      if (!description) errors.push({ msg: "Business description is required" });
+
+      if (website_url && !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(website_url)) {
+        errors.push({ msg: "Website URL must be valid" });
+      }
+
+      if (!logoFile) {
+        errors.push({ msg: "Logo is required" });
+      }
+    }
+
+    return errors;
+  };
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
 
-    // if (!isCustomer && logoFile) {
-    //   formData.append("logo", logoFile);
-    // }
-
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
-
+    const errors = validateForm(formData, isCustomer, logoFile);
+    if (errors.length > 0) {
+      setErrorList(errors);
+      setErrorMessage("");
+      return;
+    }
     try {
       setErrorMessage("");
 
@@ -79,14 +135,14 @@ export default function Register() {
       console.error(err);
       if (Array.isArray(err?.response?.data?.message)) {
         setErrorList(err.response.data.message);
-            setErrorMessage("");
+        setErrorMessage("");
 
       } else {
-        setErrorMessage(err.message || "Registration failed");
-            setErrorList([]);
+        setErrorMessage(err?.response?.data?.message || "Registration failed");
+        setErrorList([]);
 
       }
-   
+
     }
   };
 
@@ -111,7 +167,7 @@ export default function Register() {
                 {errorMessage}
               </Alert>
             )}
-           
+
 
             {errorList.length > 0 && (
               <Alert severity="error" sx={{ width: '100%', mt: 2 }}>

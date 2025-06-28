@@ -1,7 +1,7 @@
 import { body, param } from "express-validator";
 
 export const createCouponValidator = [
-  body("business_owner_id")
+  body("userId")
     .notEmpty().withMessage("business_owner_id is required")
     .isInt({ gt: 0 }).withMessage("business_owner_id must be a positive integer"),
 

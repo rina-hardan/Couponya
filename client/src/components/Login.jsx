@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchFromServer } from "../api/ServerAPI";
 import logo from "../pic/logo.png";
@@ -18,20 +18,48 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [errorList, setErrorList] = useState([]); 
+  const [errorList, setErrorList] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
+
   const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.clear();
     window.history.replaceState(null, "", window.location.href);
   }, []);
+  function validateLoginForm(email, password) {
+    const errors = {};
+
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Valid email is required";
+    }
+
+    if (!password) {
+      errors.password = "Password is required";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+
+    return errors;
+  }
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      setErrorMessage("");
-      setErrorList([]);
+    setErrorMessage("");
+    setErrorList([]);
+    setFieldErrors({}); 
 
+    const validationErrors = validateLoginForm(email, password);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      const list = Object.entries(validationErrors).map(([_, msg]) => ({ msg }));
+      return;
+    }
+    try {
       const result = await fetchFromServer("users/login", "POST", {
         email,
         password,
@@ -55,13 +83,12 @@ export default function Login() {
 
       if (Array.isArray(message)) {
         setErrorList(message);
-        setErrorMessage("");
       } else {
         setErrorMessage(message || error.message || "Login failed.");
-        setErrorList([]);
       }
     }
   };
+
 
   return (
     <Box className="login-page">
@@ -75,14 +102,12 @@ export default function Login() {
               Welcome to Couponya
             </Typography>
 
-            {/* הודעת שגיאה אחת */}
             {errorMessage && (
               <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
                 {errorMessage}
               </Alert>
             )}
 
-            {/* כמה הודעות שגיאה */}
             {errorList.length > 0 && (
               <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
                 <ul style={{ margin: 0, paddingLeft: "20px" }}>
@@ -101,10 +126,11 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                InputProps={{
-                  sx: { borderRadius: "25px" },
-                }}
+                error={!!fieldErrors.email}
+                helperText={fieldErrors.email}
+                InputProps={{ sx: { borderRadius: "25px" } }}
               />
+
               <TextField
                 required
                 fullWidth
@@ -112,10 +138,11 @@ export default function Login() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                InputProps={{
-                  sx: { borderRadius: "25px" },
-                }}
+                error={!!fieldErrors.password}
+                helperText={fieldErrors.password}
+                InputProps={{ sx: { borderRadius: "25px" } }}
               />
+
               <Button
                 type="submit"
                 fullWidth

@@ -17,7 +17,7 @@ const ProfileDetails = () => {
   const user = JSON.parse(localStorage.getItem("currentUser")) || {};
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
-    const [errorList, setErrorList] = useState([]);
+  const [errorList, setErrorList] = useState([]);
   const [regions, setRegions] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [logoFile, setLogoFile] = useState(null);
@@ -40,6 +40,35 @@ const ProfileDetails = () => {
       fetchRegions();
     }
   }, [isCustomer]);
+  const validateFormData = () => {
+    const errors = [];
+
+    if (isCustomer && (!formData.region_id || formData.region_id <= 0)) {
+      errors.push({ msg: "Please select a valid region." });
+    }
+    if (isBusinessOwner) {
+      if (!formData.business_name || formData.business_name.trim() === "") {
+        errors.push({ msg: "Business name is required." });
+      }
+      if (formData.website_url && !isValidURL(formData.website_url)) {
+        errors.push({ msg: "Website URL must be valid." });
+      }
+    }
+    if (formData.name !== undefined && formData.name.trim() === "") {
+      errors.push({ msg: "Name cannot be empty." });
+    }
+
+    return errors;
+  };
+
+  const isValidURL = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,13 +80,24 @@ const ProfileDetails = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+
+    setErrorMessage("");
+    setErrorList([]);
+    setSuccessMessage("");
+
+    const validationErrors = validateFormData();
+    if (validationErrors.length > 0) {
+      setErrorList(validationErrors);
+      return;
+    }
+
     const dataToSend = new FormData();
 
     for (const key in formData) {
       if (formData[key]) dataToSend.append(key, formData[key]);
     }
 
-   
+
     if (logoFile) {
       dataToSend.append("logo", logoFile);
     }
@@ -65,8 +105,8 @@ const ProfileDetails = () => {
     setErrorMessage("");
     setSuccessMessage("");
     try {
-       const result = await fetchFromServer("/users/update", "PUT", dataToSend);
-      
+      const result = await fetchFromServer("/users/update", "PUT", dataToSend);
+
       if (result.user) {
         localStorage.setItem("currentUser", JSON.stringify(result.user));
       }
@@ -81,7 +121,7 @@ const ProfileDetails = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-        const message = error.response?.data?.message;
+      const message = error.response?.data?.message;
 
       if (Array.isArray(message)) {
         setErrorList(message);
@@ -106,15 +146,15 @@ const ProfileDetails = () => {
             {errorMessage}
           </Alert>
         )}
-            {errorList.length > 0 && (
-              <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
-                <ul style={{ margin: 0, paddingLeft: "20px" }}>
-                  {errorList.map((err, idx) => (
-                    <li key={idx}>{err.msg || err}</li>
-                  ))}
-                </ul>
-              </Alert>
-            )}
+        {errorList.length > 0 && (
+          <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+            <ul style={{ margin: 0, paddingLeft: "20px" }}>
+              {errorList.map((err, idx) => (
+                <li key={idx}>{err.msg || err}</li>
+              ))}
+            </ul>
+          </Alert>
+        )}
         {successMessage && (
           <Alert severity="success" sx={{ mb: 2 }}>
             {successMessage}
