@@ -139,7 +139,6 @@ registerBusinessOwnerUser: async (data) => {
 
       await conn.commit();
 
-      // שליפה מחדש
       const [rows] = await conn.query(`
         SELECT u.id, u.userName, u.name, u.email, u.role, u.created_at,
                ${role === 'customer'
