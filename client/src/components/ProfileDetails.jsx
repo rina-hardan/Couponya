@@ -95,8 +95,9 @@ const ProfileDetails = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box className="profile-container">
+   <div className="profile-page">
+  <Container maxWidth="sm">
+    <Box className="profile-container">
         <Typography variant="h4" className="profile-title" gutterBottom>
           My Profile
         </Typography>
@@ -236,6 +237,7 @@ const ProfileDetails = () => {
         </form>
       </Box>
     </Container>
+    </div>
   );
 };
 

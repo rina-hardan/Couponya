@@ -461,7 +461,7 @@ const CouponsDisplay = () => {
         </Box>
       ) : (
         <>
-          {(
+          {!specialOnly &&(
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4, alignItems: "center" }}>
               <FormControl sx={{ minWidth: 140 }}>
                 <InputLabel id="category-label">קטגוריה</InputLabel>

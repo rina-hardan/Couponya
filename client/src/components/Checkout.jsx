@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-import { TextField, Box, Typography, Button, Alert } from "@mui/material"; // הוספתי את ה-importים החסרים
-import { fetchFromServer } from "../api/ServerAPI"; // פונקציה לשליחת בקשות לשרת
+import { TextField, Box, Typography, Button, Alert } from "@mui/material";
+import { fetchFromServer } from "../api/ServerAPI";
+import "../css/Checkout.css";
 export default function Checkout() {
   const location = useLocation();
-  const { cartItems, userPoints, customerBirthDate } = location.state || {}; // לשלוף את הנתונים מה-state
+  const { cartItems, userPoints, customerBirthDate } = location.state || {};
 
   const [creditCardNumber, setCreditCardNumber] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
   const [cvv, setCvv] = useState("");
   const [error, setError] = useState("");
-  const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
-
+  const [errorList, setErrorList] = useState([]);
   const [usePoints, setUsePoints] = useState(false);
   const navigate = useNavigate();
 
@@ -23,6 +23,7 @@ export default function Checkout() {
     }
     return true;
   };
+
   const validateExpirationDate = () => {
     const regex = /^(0[1-9]|1[0-2])\/\d{2}$/;
     if (!regex.test(expirationDate)) {
@@ -32,7 +33,7 @@ export default function Checkout() {
 
     const [month, year] = expirationDate.split("/").map(Number);
     const now = new Date();
-    const currentYear = now.getFullYear() % 100; // last 2 digits
+    const currentYear = now.getFullYear() % 100;
     const currentMonth = now.getMonth() + 1;
 
     if (year < currentYear || (year === currentYear && month < currentMonth)) {
@@ -42,6 +43,7 @@ export default function Checkout() {
 
     return true;
   };
+
   const validateCVV = () => {
     const cvvRegex = /^[0-9]{3,4}$/;
     if (!cvvRegex.test(cvv)) {
@@ -50,61 +52,67 @@ export default function Checkout() {
     }
     return true;
   };
+
   const handleCheckout = async () => {
     setError("");
     setErrorList([]);
 
-    if (
-      !validateCreditCard() ||
-      !validateExpirationDate() ||
-      !validateCVV()
-    ) return;
-    console.log("Cart Items:", cartItems);
+    if (!validateCreditCard() || !validateExpirationDate() || !validateCVV()) return;
+
     const items = cartItems.map(item => ({
       couponId: item.coupon_id,
       quantity: item.quantity,
       pricePerUnit: parseFloat(item.price_per_unit),
     }));
+
     const orderDetails = {
-      items: items,
-      usePoints: usePoints,
-      customerBirthDate: customerBirthDate,
+      items,
+      usePoints,
+      customerBirthDate,
     };
+
     try {
       const response = await fetchFromServer("order/create", "POST", orderDetails);
-      console.log("Order created successfully:", response);
       alert("Payment successful! Your order has been created.");
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
       if (currentUser && response.updatedPoints !== undefined) {
         currentUser.points = response.updatedPoints;
         localStorage.setItem("currentUser", JSON.stringify(currentUser));
       }
+
       navigate("/CustomerHome");
     } catch (error) {
-
-      console.error("Error creating order:", error);
       const message = error.response?.data?.message;
-
       if (Array.isArray(message)) {
         setErrorList(message);
         setError("");
       } else {
-        setError(message || error.message || "Login failed.");
+        setError(message || error.message || "Checkout failed.");
         setErrorList([]);
       }
     }
   };
 
-  return (
-    <Box sx={{ width: 300, margin: "0 auto", paddingTop: 4 }}>
-      <Typography variant="h6" gutterBottom>
+ return (
+  <div className="checkout-container">
+    <Box
+      sx={{
+        width: 370,
+        backgroundColor: "#ffffff",
+        padding: 4,
+        borderRadius: 4,
+        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)"
+      }}
+    >
+      <Typography variant="h5" gutterBottom align="center">
         Checkout
       </Typography>
+
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       {errorList.length > 0 && (
-        <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           <ul style={{ margin: 0, paddingLeft: "20px" }}>
             {errorList.map((err, idx) => (
               <li key={idx}>{err.msg || err}</li>
@@ -112,6 +120,7 @@ export default function Checkout() {
           </ul>
         </Alert>
       )}
+
       <TextField
         label="Credit Card Number"
         variant="outlined"
@@ -119,8 +128,6 @@ export default function Checkout() {
         margin="normal"
         value={creditCardNumber}
         onChange={(e) => setCreditCardNumber(e.target.value)}
-        error={!!error}
-        helperText={error}
       />
       <TextField
         label="Expiration Date (MM/YY)"
@@ -145,6 +152,7 @@ export default function Checkout() {
       <Button
         onClick={() => setUsePoints(!usePoints)}
         variant="outlined"
+        fullWidth
         sx={{ marginTop: 1 }}
       >
         {usePoints ? "Don't Use Points" : "Use Points"}
@@ -153,12 +161,20 @@ export default function Checkout() {
       <Button
         onClick={handleCheckout}
         variant="contained"
-        color="primary"
         fullWidth
-        sx={{ marginTop: 2 }}
+         sx={{
+    marginTop: 3,
+    backgroundColor: "#12002b",
+    color: "#fff", // צבע הטקסט
+    '&:hover': {
+      backgroundColor: "#2a004f"
+    }
+  }}
       >
         Confirm Payment
       </Button>
     </Box>
-  );
+  </div>
+);
+
 }
