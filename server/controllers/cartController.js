@@ -5,7 +5,7 @@ const cartController = {
  addToCart: async (req, res) => {
     try {
       const { couponId, quantity, pricePerUnit,title } = req.body;
-      const userId = req.userId; // אנחנו מקבלים את ה- userId מתוך הטוקן
+      const userId = req.userId; 
       const result = await cartModel.addToCart(userId, couponId, quantity, pricePerUnit,title);
 
       if (result.success) {
@@ -22,16 +22,12 @@ const cartController = {
   getCartItems: async (req, res) => {
     try {
        const userId = req.userId;
-      if (!userId) {
-        return res.status(400).json({ error: "userId is required" });
-      }
-
       const cartItems = await cartModel.getCartItems(userId);
 
       res.status(200).json({ cartItems });
     } catch (err) {
       console.error("Error in getCartItems:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
@@ -39,10 +35,6 @@ const cartController = {
     try {
       const { couponId } = req.body;
        const userId = req.userId;
-      if (!userId ) {
-        return res.status(400).json({ message: "userId is required" });
-      }
-
       const result = await cartModel.removeFromCart(userId, couponId);
 
       if (result.success) {
@@ -57,9 +49,8 @@ const cartController = {
   },
   updateItemQuantity: async (req, res) => {
     try {
-      const { couponId, quantity } = req.body; // קבלת couponId וכמות מעודכנת מה-body של הבקשה
-      const userId = req.userId; // קבלת userId מתוך הטוקן (המשתמש המחובר)
-
+      const { couponId, quantity } = req.body; 
+      const userId = req.userId; 
       const result = await cartModel.updateItemQuantity(userId, couponId, quantity);
 
       if (result.success) {

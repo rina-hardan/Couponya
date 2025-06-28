@@ -15,6 +15,7 @@ import BusinessCouponsManager from "./components/BusinessCouponsManager";
 import ManageCategories from "./components/ManageCategories";
 import UnconfirmedCoupons from "./components/UnconfirmedCoupons";
 import CouponForm from "./components/CouponForm";
+import NotFound from "./components/NotFound";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -43,6 +44,7 @@ function App() {
         <Route path="/order-history" element={<OrderHistory />} />
         <Route path="/profile" element={<ProfileDetails />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

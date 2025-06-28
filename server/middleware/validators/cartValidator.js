@@ -1,4 +1,3 @@
-// middleware/cartValidator.js
 import { body } from "express-validator";
 
 export const addToCartValidator = [

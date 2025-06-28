@@ -26,12 +26,6 @@ const couponsModel = {
     const [result] = await DB.query(sql, params);
     return { id: result.insertId, ...data };
   },
-
-  // getAllActive: async () => {
-  //   const sql = `SELECT * FROM coupons WHERE is_active = true`;
-  //   const [results] = await DB.query(sql);
-  //   return results;
-  // },
   getAllActive: async ({ categoryId, regionId, minPrice, maxPrice, search, sort, limit, offset }) => {
     let query = `
     SELECT coupons.*, business_owners.logo_url, business_owners.business_name,
@@ -124,11 +118,7 @@ const couponsModel = {
     return result.affectedRows > 0;
   }
   ,
-  delete: async (id) => {
-    const sql = `DELETE FROM coupons WHERE id = ?`;
-    const [result] = await DB.query(sql, [id]);
-    return result.affectedRows > 0;
-  },
+  
   getCouponsByBusinessOwnerId: async ({
     businessOwnerId,
     isActive,

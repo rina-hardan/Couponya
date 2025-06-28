@@ -22,7 +22,7 @@ export default function BusinessOwnerHome() {
   const handleLogout = () => {
     handleClose();
     localStorage.clear();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   return (

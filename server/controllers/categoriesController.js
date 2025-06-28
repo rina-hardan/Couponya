@@ -4,10 +4,6 @@ const categoriesController = {
   addCategory: async (req, res) => {
     try {
       const { name } = req.body;
-
-      if (!name) {
-        return res.status(400).json({ message: "Category name is required" });
-      }
       const img_url = req.file ? `/uploads/${req.file.filename}` : null;
 
       const result = await categoriesModel.addCategory({ name, img_url });

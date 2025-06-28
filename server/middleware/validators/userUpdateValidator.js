@@ -33,7 +33,7 @@ const businessOwnerUpdateValidators = [
 ];
 
 const validateUpdateUserFields = (req, res, next) => {
-  const role = req.role; // מתוך הטוקן ב־verifyToken
+  const role = req.role;
   let validations = [...forbiddenValidators, ...baseUpdateValidators];
 
   if (role === "customer") {
