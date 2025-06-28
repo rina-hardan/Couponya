@@ -13,7 +13,6 @@ const baseValidators = [
     .withMessage("Role must be customer or business_owner")
 ];
 
-// ולידציות לפי תפקיד
 const customerValidators = [
   body("birth_date")
     .notEmpty()

@@ -5,7 +5,7 @@ import conditionalUpload from "../middleware/conditionalUpload.js";
 import validate from "../middleware/validate.js";
 import { loginValidator } from "../middleware/validators/loginValidator.js";
 import validateRegistrationFields from "../middleware/validators/userRegistrationValidator.js";
-
+import validateUpdateUserFields from "../middleware/validators/userUpdateValidator.js";
 const usersRouter = express.Router();
 
 usersRouter.post(
@@ -18,6 +18,6 @@ usersRouter.post(
 
 usersRouter.post("/login",loginValidator,validate, usersController.login);
 
-usersRouter.put("/update", verifyToken, conditionalUpload, usersController.update);
+usersRouter.put("/update", verifyToken, conditionalUpload,validateUpdateUserFields,validate, usersController.updateUser);
 
 export default usersRouter;

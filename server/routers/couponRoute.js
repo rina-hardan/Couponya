@@ -19,9 +19,7 @@ couponsRouter.get('/unconfirmedCoupons',verifyToken,isAdmin, couponsController.g
 couponsRouter.post('/recommendedCoupons',verifyToken, couponsController.getRecommendedCoupons);
 couponsRouter.get('/:id', couponIdValidator, validate, couponsController.getCouponById);
 
-couponsRouter.put('/confirmCoupon/:couponId', verifyToken, isAdmin, [
-  param("couponId").isInt({ gt: 0 }).withMessage("Coupon ID must be a positive integer")
-], validate, couponsController.confirmCoupon);
+couponsRouter.put('/confirmCoupon/:couponId', verifyToken, isAdmin, couponIdValidator, validate, couponsController.confirmCoupon);
 couponsRouter.put('/:id', verifyToken, updateCouponValidator, validate, couponsController.updateCoupon);
 couponsRouter.delete('/:id', verifyToken, couponIdValidator, validate, couponsController.deleteCoupon);
 
