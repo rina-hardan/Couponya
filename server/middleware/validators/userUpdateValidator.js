@@ -6,7 +6,6 @@ const forbiddenValidators = forbiddenFields.map((field) =>
   body(field).not().exists().withMessage(`${field} cannot be updated.`)
 );
 
-// ולידציות אופציונליות – רק אם נשלחו, נבדוק תקינותן
 const baseUpdateValidators = [
   body("name").optional().notEmpty().withMessage("Name cannot be empty"),
 ];

@@ -17,6 +17,7 @@ const ProfileDetails = () => {
   const user = JSON.parse(localStorage.getItem("currentUser")) || {};
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
+    const [errorList, setErrorList] = useState([]);
   const [regions, setRegions] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [logoFile, setLogoFile] = useState(null);
@@ -52,7 +53,6 @@ const ProfileDetails = () => {
     e.preventDefault();
     const dataToSend = new FormData();
 
-    // צירוף השדות הפשוטים
     for (const key in formData) {
       if (formData[key]) dataToSend.append(key, formData[key]);
     }
@@ -79,8 +79,17 @@ const ProfileDetails = () => {
       } else if (user.role === "business_owner") {
         navigate("/BusinessOwnerHome");
       }
-    } catch (err) {
-      console.error("Error:", err);
+    } catch (error) {
+      console.error("Error:", error);
+        const message = error.response?.data?.message;
+
+      if (Array.isArray(message)) {
+        setErrorList(message);
+        setErrorMessage("");
+      } else {
+        setErrorMessage(message || error.message || "Login failed.");
+        setErrorList([]);
+      }
       setErrorMessage(err.message || "Server error");
     }
   };
@@ -97,7 +106,15 @@ const ProfileDetails = () => {
             {errorMessage}
           </Alert>
         )}
-
+            {errorList.length > 0 && (
+              <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                  {errorList.map((err, idx) => (
+                    <li key={idx}>{err.msg || err}</li>
+                  ))}
+                </ul>
+              </Alert>
+            )}
         {successMessage && (
           <Alert severity="success" sx={{ mb: 2 }}>
             {successMessage}
