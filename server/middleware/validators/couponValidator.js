@@ -1,10 +1,6 @@
 import { body, param } from "express-validator";
 
 export const createCouponValidator = [
-  body("userId")
-    .notEmpty().withMessage("business_owner_id is required")
-    .isInt({ gt: 0 }).withMessage("business_owner_id must be a positive integer"),
-
   body("category_id")
     .optional({ nullable: true })
     .isInt({ gt: 0 }).withMessage("category_id must be a positive integer"),
@@ -58,10 +54,6 @@ export const updateCouponValidator = [
   param("id")
     .isInt({ gt: 0 }).withMessage("Coupon ID must be a positive integer"),
 
-  body("business_owner_id")
-    .optional()
-    .isInt({ gt: 0 }).withMessage("business_owner_id must be a positive integer"),
-
   body("category_id")
     .optional({ nullable: true })
     .isInt({ gt: 0 }).withMessage("category_id must be a positive integer"),
@@ -112,7 +104,7 @@ export const updateCouponValidator = [
 ];
 
 export const couponIdValidator = [
-  param("id")
+  param("couponId")
     .isInt({ gt: 0 }).withMessage("Coupon ID must be a positive integer")
 ];
 export const recommendedCouponsValidator = [

@@ -43,11 +43,11 @@ const ProfileDetails = () => {
   const validateFormData = () => {
     const errors = [];
 
-    if (isCustomer && (!formData.region_id || formData.region_id <= 0)) {
+    if (isCustomer && (formData.region_id &&formData.region_id <= 0)) {
       errors.push({ msg: "Please select a valid region." });
     }
     if (isBusinessOwner) {
-      if (!formData.business_name || formData.business_name.trim() === "") {
+      if (formData.business_name && formData.business_name?.trim() === "") {
         errors.push({ msg: "Business name is required." });
       }
       if (formData.website_url && !isValidURL(formData.website_url)) {

@@ -74,7 +74,7 @@ export default function CouponForm() {
   const errors = {};
 
   // Title: required on create, min 3 characters
-  if (!isUpdate || formData.title !== undefined) {
+  if (!isUpdate && formData.title !== undefined) {
     if (!formData.title?.trim()) {
       errors.title = "Title is required";
     } else if (formData.title.length < 3) {
@@ -88,7 +88,7 @@ export default function CouponForm() {
   }
 
   // Original Price: required on create, float > 0
-  if (!isUpdate || formData.original_price !== undefined) {
+  if (!isUpdate && formData.original_price !== undefined) {
     if (
       formData.original_price === "" ||
       isNaN(formData.original_price) ||
@@ -99,7 +99,7 @@ export default function CouponForm() {
   }
 
   // Discounted Price: required on create, float > 0
-  if (!isUpdate || formData.discounted_price !== undefined) {
+  if (!isUpdate && formData.discounted_price !== undefined) {
     if (
       formData.discounted_price === "" ||
       isNaN(formData.discounted_price) ||
@@ -120,7 +120,7 @@ export default function CouponForm() {
   }
 
   // Quantity: required on create, int > 0
-  if (!isUpdate || formData.quantity !== undefined) {
+  if (!isUpdate && formData.quantity !== undefined) {
     if (
       formData.quantity === "" ||
       isNaN(formData.quantity) ||
@@ -131,7 +131,7 @@ export default function CouponForm() {
   }
 
   // Expiry Date: required on create, valid ISO date, not in past
-  if (!isUpdate || formData.expiry_date !== undefined) {
+  if (!isUpdate && formData.expiry_date !== undefined) {
     if (!formData.expiry_date) {
       errors.expiry_date = "Expiry date is required";
     } else {
@@ -156,10 +156,10 @@ export default function CouponForm() {
     errors.region_id = "Region must be a positive number";
   }
 
-  // is_active: optional boolean
-  if (formData.is_active !== undefined && typeof formData.is_active !== "boolean") {
-    errors.is_active = "Active must be true or false";
-  }
+  // // is_active: optional boolean
+  // if (formData.is_active !== undefined) {
+  //   errors.is_active = "Active must be true or false";
+  // }
 
   // Status: optional enum
   if (formData.status && !["pending", "confirmed", "rejected"].includes(formData.status)) {
@@ -188,7 +188,7 @@ export default function CouponForm() {
       "region_id"
     ];
 
-    const newErrors = validateFormData(formData);
+    const newErrors = validateFormData(formData, initialData.id !== undefined);
 
     if (Object.keys(newErrors).length > 0) {
       setFieldErrors(newErrors);
