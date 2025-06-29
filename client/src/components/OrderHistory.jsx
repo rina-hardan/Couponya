@@ -25,7 +25,7 @@ export default function OrderHistory() {
     try {
       const result = await fetchFromServer(`order/?sort=${selectedSort}&page=${pageToFetch}&limit=${limit}`);
       const newOrders = result.orders || [];
-
+      console.log("Fetched orders:", result.orders );
       if (pageToFetch === 1) {
         setOrders(newOrders);
       } else {

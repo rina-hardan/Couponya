@@ -18,6 +18,7 @@ const ordersModel = {
     return result.insertId;
   },
 
+
   bulkAddOrderItems: async (orderItems) => {
     await DB.query(
       `INSERT INTO order_items (order_id, coupon_id, quantity, price_per_unit, total_price)
@@ -25,6 +26,50 @@ const ordersModel = {
       [orderItems]
     );
   },
+  createOrderWithItemsAndCouponsUpdate: async (customerId, totalPrice, items) => {
+  const connection = await DB.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const orderDate = new Date();
+
+    const [result] = await connection.query(
+      "INSERT INTO orders (customer_id, total_price, order_date) VALUES (?, ?, ?)",
+      [customerId, totalPrice, orderDate]
+    );
+    const orderId = result.insertId;
+
+    const orderItems = items.map(item => [
+      orderId,
+      item.couponId,
+      item.quantity,
+      item.pricePerUnit,
+      item.pricePerUnit * item.quantity,
+    ]);
+
+    await connection.query(
+      `INSERT INTO order_items (order_id, coupon_id, quantity, price_per_unit, total_price) VALUES ?`,
+      [orderItems]
+    );
+
+    for (const item of items) {
+      await connection.query(
+        `UPDATE coupons SET quantity = quantity - ? WHERE id = ? AND quantity >= ?`,
+        [item.quantity, item.couponId, item.quantity]
+      );
+    }
+
+    await connection.commit();
+    connection.release();
+
+    return { orderId, orderItems };
+  } catch (err) {
+    await connection.rollback();
+    connection.release();
+    throw err;
+  }
+},
+
 getOrdersByCustomerId: async ({ customerId, sort, limit = 10, offset = 0 }) => {
   let sortField = "order_date";
   let sortDirection = "DESC";
