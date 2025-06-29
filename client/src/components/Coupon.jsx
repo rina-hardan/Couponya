@@ -19,7 +19,7 @@ import {
   Add,
   Remove,
 } from "@mui/icons-material";
-import { fetchFromServer } from "../api/ServerAPI"; // פונקציה לשליחת בקשות לשרת
+import { fetchFromServer } from "../api/ServerAPI"; 
 const Coupon = () => {
   const location = useLocation();
   const navigate = useNavigate();

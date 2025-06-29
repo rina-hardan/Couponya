@@ -156,10 +156,6 @@ export default function CouponForm() {
     errors.region_id = "Region must be a positive number";
   }
 
-  // // is_active: optional boolean
-  // if (formData.is_active !== undefined) {
-  //   errors.is_active = "Active must be true or false";
-  // }
 
   // Status: optional enum
   if (formData.status && !["pending", "confirmed", "rejected"].includes(formData.status)) {

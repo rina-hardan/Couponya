@@ -21,13 +21,13 @@ export default function Register() {
   const [isCustomer, setIsCustomer] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [regions, setRegions] = useState([]);
-  const [errorMessage, setErrorMessage] = useState(""); // שגיאה שתוצג למשתמש
+  const [errorMessage, setErrorMessage] = useState("");
   const [errorList, setErrorList] = useState([]);
 
   const handleRegions = async () => {
     try {
       const response = await fetchFromServer("regions/", "GET");
-      setRegions(response.regions); // בהנחה ש־res מחזיר מערך של אזורים
+      setRegions(response.regions); 
     } catch (err) {
       console.error("Failed to fetch regions", err);
     }

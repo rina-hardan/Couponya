@@ -165,7 +165,7 @@ export default function Checkout() {
          sx={{
     marginTop: 3,
     backgroundColor: "#12002b",
-    color: "#fff", // צבע הטקסט
+    color: "#fff",
     '&:hover': {
       backgroundColor: "#2a004f"
     }

@@ -29,7 +29,7 @@ export default function CustomerHome() {
   const [cartPopoverOpen, setCartPopoverOpen] = useState(false);
   const [usePoints, setUsePoints] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [errorList, setErrorList] = useState([]); // רשימת שגיאות אם יש מערך
+  const [errorList, setErrorList] = useState([]); 
 
   const [showBirthdayPopup, setShowBirthdayPopup] = useState(false);
   const [hasBirthdayDiscount, setHasBirthdayDiscount] = useState(false);
